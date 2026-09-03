@@ -1,28 +1,15 @@
 import axios, { AxiosAdapter } from 'axios';
 import { handleMockResponse } from './mockService';
 
-// Detect if running on Vercel, Netlify, or standalone deployment without cloud backend
-export const isStandaloneDemo =
+const isLocalhost =
   typeof window !== 'undefined' &&
-  !window.location.hostname.includes('localhost') &&
-  !window.location.hostname.includes('127.0.0.1') &&
-  !import.meta.env.VITE_API_URL;
+  (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1'));
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+export const RAILWAY_API_URL = 'https://izaac03-isaacpos-production.up.railway.app/api';
 
-// Standalone Mock Adapter for Vercel
-const mockAdapter: AxiosAdapter = async (config) => {
-  const url = config.url || '';
-  const method = config.method || 'get';
-  const res = await handleMockResponse(url, method, config.data, config.params);
-  return {
-    data: res.data,
-    status: res.status,
-    statusText: 'OK',
-    headers: {},
-    config,
-  };
-};
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (isLocalhost ? '/api' : RAILWAY_API_URL);
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -30,8 +17,8 @@ export const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  ...(isStandaloneDemo ? { adapter: mockAdapter } : {}),
 });
+
 
 // Automatically attach Sanctum Bearer token if available
 api.interceptors.request.use((config) => {
