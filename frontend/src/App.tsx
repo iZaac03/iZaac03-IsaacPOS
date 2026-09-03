@@ -14,7 +14,7 @@ import { SettingsView } from './components/views/SettingsView';
 import { api } from './api/client';
 
 export const AppContent: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const [activeTab, setActiveTab] = useState<ActiveTab>('pos');
   const [lowStockCount, setLowStockCount] = useState<number>(0);
   const [isElderMode, setIsElderMode] = useState<boolean>(() => {
@@ -24,6 +24,13 @@ export const AppContent: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('klaropos_elder_mode', isElderMode.toString());
   }, [isElderMode]);
+
+  // Cashier Role Guard: Cashier only accesses POS, inventory, alerts, transactions, and analytics
+  useEffect(() => {
+    if (user?.role === 'cashier' && (activeTab === 'settings' || activeTab === 'staff' || activeTab === 'purchase_orders')) {
+      setActiveTab('pos');
+    }
+  }, [user, activeTab]);
 
   const fetchLowStockCount = async () => {
     if (!isAuthenticated) return;

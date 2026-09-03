@@ -48,6 +48,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { user, store, logout } = useAuth();
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
+  const isCashier = user?.role === 'cashier';
+  const isAdmin = user?.role === 'admin';
+
   const navItems = [
     {
       id: 'pos' as ActiveTab,
@@ -73,14 +76,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       color: 'text-amber-400',
       badge: lowStockCount > 0 ? lowStockCount : null,
     },
-    {
-      id: 'purchase_orders' as ActiveTab,
-      label: 'Purchase Orders',
-      sublabel: 'Supplier Stock Delivery',
-      icon: <Truck className="w-5 h-5 shrink-0" />,
-      color: 'text-blue-400',
-      badge: null,
-    },
+    ...(!isCashier
+      ? [
+          {
+            id: 'purchase_orders' as ActiveTab,
+            label: 'Purchase Orders',
+            sublabel: 'Supplier Stock Delivery',
+            icon: <Truck className="w-5 h-5 shrink-0" />,
+            color: 'text-blue-400',
+            badge: null,
+          },
+        ]
+      : []),
     {
       id: 'transactions' as ActiveTab,
       label: 'Transactions',
@@ -92,12 +99,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       id: 'analytics' as ActiveTab,
       label: 'Sales Reports',
-      sublabel: 'Revenue & Cashier Audit',
+      sublabel: 'Revenue & Shift Audit',
       icon: <BarChart3 className="w-5 h-5 shrink-0" />,
       color: 'text-purple-400',
       badge: null,
     },
-    ...(user?.role === 'admin'
+    ...(isAdmin
       ? [
           {
             id: 'staff' as ActiveTab,
@@ -109,14 +116,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
           },
         ]
       : []),
-    {
-      id: 'settings' as ActiveTab,
-      label: 'Store Settings',
-      sublabel: 'BIR TIN & Receipt Header',
-      icon: <Settings className="w-5 h-5 shrink-0" />,
-      color: 'text-slate-400',
-      badge: null,
-    },
+    ...(!isCashier
+      ? [
+          {
+            id: 'settings' as ActiveTab,
+            label: 'Store Settings',
+            sublabel: 'BIR TIN & Receipt Header',
+            icon: <Settings className="w-5 h-5 shrink-0" />,
+            color: 'text-slate-400',
+            badge: null,
+          },
+        ]
+      : []),
   ];
 
   return (

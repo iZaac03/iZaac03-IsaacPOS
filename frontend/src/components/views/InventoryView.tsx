@@ -193,53 +193,55 @@ export const InventoryView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleImportCsv}
-            />
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-300 rounded-md hover:bg-slate-50 transition-colors shadow-xs">
-              <Upload className="w-3.5 h-3.5" />
-              Import CSV
-            </span>
-          </label>
+        {user?.role !== 'cashier' && (
+          <div className="flex items-center gap-2">
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={handleImportCsv}
+              />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-300 rounded-md hover:bg-slate-50 transition-colors shadow-xs">
+                <Upload className="w-3.5 h-3.5" />
+                Import CSV
+              </span>
+            </label>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExportCsv}
-            icon={<Download className="w-3.5 h-3.5" />}
-          >
-            Export CSV
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCsv}
+              icon={<Download className="w-3.5 h-3.5" />}
+            >
+              Export CSV
+            </Button>
 
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => {
-              setSelectedProduct(null);
-              setFormData({
-                name: '',
-                barcode: '',
-                sku: '',
-                category_id: categories[0]?.category_id.toString() || '',
-                cost_price: '',
-                selling_price: '',
-                stock_quantity: '0',
-                reorder_level: '10',
-                unit: 'pcs',
-                description: '',
-              });
-              setIsCreateModalOpen(true);
-            }}
-            icon={<Plus className="w-4 h-4" />}
-          >
-            Add Product
-          </Button>
-        </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                setSelectedProduct(null);
+                setFormData({
+                  name: '',
+                  barcode: '',
+                  sku: '',
+                  category_id: categories[0]?.category_id.toString() || '',
+                  cost_price: '',
+                  selling_price: '',
+                  stock_quantity: '0',
+                  reorder_level: '10',
+                  unit: 'pcs',
+                  description: '',
+                });
+                setIsCreateModalOpen(true);
+              }}
+              icon={<Plus className="w-4 h-4" />}
+            >
+              Add Product
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Filter and Search Bar */}
@@ -373,32 +375,38 @@ export const InventoryView: React.FC = () => {
                           </Badge>
                         )}
                       </td>
-                      <td className="py-2.5 px-4 text-right space-x-1.5 whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenAdjust(p)}
-                          title="Adjust stock quantity"
-                          className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                        >
-                          <SlidersHorizontal className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEdit(p)}
-                          title="Edit product"
-                          className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(p.product_id, p.name)}
-                          title="Delete product"
-                          className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
+                      {user?.role !== 'cashier' ? (
+                        <td className="py-2.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenAdjust(p)}
+                            title="Adjust stock quantity"
+                            className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                          >
+                            <SlidersHorizontal className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(p)}
+                            title="Edit product"
+                            className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(p.product_id, p.name)}
+                            title="Delete product"
+                            className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      ) : (
+                        <td className="py-2.5 px-4 text-right text-slate-400 font-medium text-[11px]">
+                          View Only
+                        </td>
+                      )}
                     </tr>
                   );
                 })
