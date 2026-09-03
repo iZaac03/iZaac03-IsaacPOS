@@ -243,7 +243,7 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
   if (cleanUrl === '/categories' && method.toLowerCase() === 'get') {
     return {
       status: 200,
-      data: { data: initialMockCategories },
+      data: initialMockCategories,
     };
   }
 
@@ -251,7 +251,7 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
   if (cleanUrl === '/suppliers' && method.toLowerCase() === 'get') {
     return {
       status: 200,
-      data: { data: initialMockSuppliers },
+      data: initialMockSuppliers,
     };
   }
 
@@ -304,7 +304,34 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
     const users = getStoredUsers();
     return {
       status: 200,
-      data: { data: users },
+      data: users,
+    };
+  }
+
+  // 12b. PRODUCTS LOW STOCK
+  if (cleanUrl === '/products/low-stock' && method.toLowerCase() === 'get') {
+    const products = getStoredProducts();
+    const low = products.filter((p) => p.stock_quantity <= p.reorder_level);
+    return {
+      status: 200,
+      data: {
+        items: low.map((p) => ({
+          product_id: p.product_id,
+          product: p,
+          current_stock: p.stock_quantity,
+          reorder_level: p.reorder_level,
+          is_out_of_stock: p.stock_quantity <= 0,
+        })),
+        count: low.length,
+      },
+    };
+  }
+
+  // 12c. STOCK REQUESTS
+  if (cleanUrl === '/stock-requests' && method.toLowerCase() === 'get') {
+    return {
+      status: 200,
+      data: [],
     };
   }
 

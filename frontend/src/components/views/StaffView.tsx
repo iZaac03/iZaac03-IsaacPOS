@@ -48,7 +48,8 @@ export const StaffView: React.FC = () => {
     setIsLoading(true);
     try {
       const res = await api.get('/users');
-      setUsers(res.data);
+      const rawUsers = res.data?.data || res.data;
+      setUsers(Array.isArray(rawUsers) ? rawUsers : []);
     } catch (err) {
       console.error('Failed to load users', err);
     } finally {

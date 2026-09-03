@@ -95,8 +95,10 @@ const playErrorBuzz = () => {
         api.get('/products', { params: { per_page: 100 } }),
         api.get('/categories'),
       ]);
-      setProducts(prodRes.data.data || prodRes.data);
-      setCategories(catRes.data);
+      const rawProducts = prodRes.data?.data || prodRes.data;
+      const rawCategories = catRes.data?.data || catRes.data;
+      setProducts(Array.isArray(rawProducts) ? rawProducts : []);
+      setCategories(Array.isArray(rawCategories) ? rawCategories : []);
     } catch (err) {
       console.error('Failed to load POS catalog', err);
     } finally {

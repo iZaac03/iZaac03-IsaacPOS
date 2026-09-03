@@ -26,7 +26,8 @@ export const SuppliersView: React.FC = () => {
     setIsLoading(true);
     try {
       const res = await api.get('/suppliers');
-      setSuppliers(res.data);
+      const rawSuppliers = res.data?.data || res.data;
+      setSuppliers(Array.isArray(rawSuppliers) ? rawSuppliers : []);
     } catch (err) {
       console.error('Failed to load suppliers', err);
     } finally {
