@@ -201,7 +201,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({ order, onClose }
               <>
                 <p>Thank you for your purchase!</p>
                 <p>Items may be exchanged within 7 days with this receipt.</p>
-                <p className="font-bold text-slate-700">KLAROPOS — POWERING RETAIL PH</p>
+                <p className="font-bold text-slate-700">ISAACPOS — POWERING RETAIL PH</p>
               </>
             )}
           </div>

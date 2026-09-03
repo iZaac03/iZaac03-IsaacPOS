@@ -87,4 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
     Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::post('/users/{id}/terminate', [UserController::class, 'terminate']);
+    Route::post('/users/{id}/reactivate', [UserController::class, 'reactivate']);
 });
+

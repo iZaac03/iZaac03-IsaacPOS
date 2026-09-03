@@ -1,4 +1,4 @@
-# Root gitignore for KlaroPOS Monorepo
+# Root gitignore for IsaacPOS Monorepo
 
 # Environment & credentials
 .env

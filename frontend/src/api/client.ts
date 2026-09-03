@@ -13,7 +13,7 @@ export const api = axios.create({
 
 // Automatically attach Sanctum Bearer token if available
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('klaropos_token');
+  const token = localStorage.getItem('isaacpos_token') || localStorage.getItem('klaropos_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -26,6 +26,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Clear token and redirect to login if not already there
+      localStorage.removeItem('isaacpos_token');
+      localStorage.removeItem('isaacpos_user');
       localStorage.removeItem('klaropos_token');
       localStorage.removeItem('klaropos_user');
       if (!window.location.pathname.includes('/login')) {

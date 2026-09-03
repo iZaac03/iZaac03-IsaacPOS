@@ -23,22 +23,22 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Store
         $store = Store::create([
-            'store_name' => 'KlaroPOS Flagship Superstore',
+            'store_name' => 'IsaacPOS Flagship Superstore',
             'branch_code' => 'BGC-01',
             'address' => 'Ground Floor, High Street South, Bonifacio Global City, Taguig, Metro Manila',
             'phone' => '(02) 8888-5527',
-            'email' => 'bgc.branch@klaropos.ph',
+            'email' => 'bgc.branch@isaacpos.ph',
             'vat_tin' => '123-456-789-00000',
-            'receipt_header' => 'KLAROPOS FLAGSHIP SUPERSTORE\nBIR PERMIT NO: FP-092026-0089\nBGC TAGUIG CITY, METRO MANILA',
-            'receipt_footer' => 'Thank you for shopping at KlaroPOS!\nPlease keep this receipt for returns within 7 days.\nVisit us at www.klaropos.ph',
+            'receipt_header' => 'ISAACPOS FLAGSHIP SUPERSTORE\nBIR PERMIT NO: FP-092026-0089\nBGC TAGUIG CITY, METRO MANILA',
+            'receipt_footer' => 'Thank you for shopping at IsaacPOS!\nPlease keep this receipt for returns within 7 days.\nVisit us at www.isaacpos.ph',
             'is_active' => true,
         ]);
 
         // 2. Users (Admin, Manager, Cashier)
         $admin = User::create([
             'store_id' => $store->store_id,
-            'name' => 'Adiel Reyes (Admin)',
-            'email' => 'admin@klaropos.ph',
+            'name' => 'Isaac Daumar (Admin)',
+            'email' => 'admin@isaacpos.ph',
             'password' => Hash::make('password123'),
             'role' => 'admin',
             'pin_code' => '999999',
@@ -49,7 +49,7 @@ class DatabaseSeeder extends Seeder
         $manager = User::create([
             'store_id' => $store->store_id,
             'name' => 'Elena Gonzales (Manager)',
-            'email' => 'manager@klaropos.ph',
+            'email' => 'manager@isaacpos.ph',
             'password' => Hash::make('password123'),
             'role' => 'manager',
             'pin_code' => '123456',
@@ -60,7 +60,7 @@ class DatabaseSeeder extends Seeder
         $cashier = User::create([
             'store_id' => $store->store_id,
             'name' => 'Paolo Mendoza (Cashier)',
-            'email' => 'cashier@klaropos.ph',
+            'email' => 'cashier@isaacpos.ph',
             'password' => Hash::make('password123'),
             'role' => 'cashier',
             'pin_code' => '112233',

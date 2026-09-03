@@ -147,7 +147,7 @@ export const LoginPage: React.FC = () => {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. cashier@klaropos.ph"
+                placeholder="e.g. cashier@isaacpos.ph"
                 darkTheme={true}
                 icon={<Mail className="w-4 h-4" />}
               />

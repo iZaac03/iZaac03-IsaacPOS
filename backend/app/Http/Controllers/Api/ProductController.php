@@ -223,7 +223,7 @@ class ProductController extends Controller
 
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="klaropos_inventory_' . date('Y-m-d') . '.csv"',
+            'Content-Disposition' => 'attachment; filename="isaacpos_inventory_' . date('Y-m-d') . '.csv"',
         ];
 
         return response()->stream(function () use ($products) {

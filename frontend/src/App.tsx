@@ -19,11 +19,14 @@ export const AppContent: React.FC = () => {
   const [lowStockCount, setLowStockCount] = useState<number>(0);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isElderMode, setIsElderMode] = useState<boolean>(() => {
-    return localStorage.getItem('klaropos_elder_mode') === 'true';
+    return (
+      localStorage.getItem('isaacpos_elder_mode') === 'true' ||
+      localStorage.getItem('klaropos_elder_mode') === 'true'
+    );
   });
 
   useEffect(() => {
-    localStorage.setItem('klaropos_elder_mode', isElderMode.toString());
+    localStorage.setItem('isaacpos_elder_mode', isElderMode.toString());
   }, [isElderMode]);
 
   // Cashier Role Guard: Cashier only accesses POS, inventory, alerts, transactions, and analytics
@@ -56,7 +59,7 @@ export const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 text-xs font-mono">
         <div className="w-10 h-10 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mb-3" />
-        <span className="text-sm font-bold tracking-wider">INITIALIZING KLAROPOS WORKSPACE...</span>
+        <span className="text-sm font-bold tracking-wider">INITIALIZING ISAACPOS WORKSPACE...</span>
       </div>
     );
   }

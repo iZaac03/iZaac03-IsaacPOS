@@ -85,7 +85,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
       return;
     }
 
-    const elementId = 'klaropos-reader';
+    const elementId = 'isaacpos-reader';
 
     const startCamera = async () => {
       try {
@@ -206,7 +206,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
         {activeTab === 'camera' && (
           <div className="space-y-3">
             <div className="relative rounded-2xl overflow-hidden bg-slate-950 border-2 border-slate-800 shadow-inner min-h-[220px] flex items-center justify-center">
-              <div id="klaropos-reader" className="w-full h-full" />
+              <div id="isaacpos-reader" className="w-full h-full" />
 
               {isScanning && (
                 <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center">

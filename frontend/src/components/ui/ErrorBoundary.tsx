@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('KlaroPOS Uncaught Error:', error, errorInfo);
+    console.error('IsaacPOS Uncaught Error:', error, errorInfo);
   }
 
   public render() {

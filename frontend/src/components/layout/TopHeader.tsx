@@ -82,7 +82,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode, on
           desc: 'Store TIN, permit numbers, and thermal receipt messages',
         };
       default:
-        return { title: 'KlaroPOS', desc: '' };
+        return { title: 'IsaacPOS', desc: '' };
     }
   };
 

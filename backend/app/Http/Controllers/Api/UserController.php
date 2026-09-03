@@ -81,4 +81,71 @@ class UserController extends Controller
             'user' => $user,
         ]);
     }
+
+    /**
+     * Terminate a staff member (cashier or manager).
+     * Deactivates their account and immediately revokes all active auth tokens.
+     */
+    public function terminate(Request $request, int $id): JsonResponse
+    {
+        $currentUser = $request->user();
+
+        if (!$currentUser->isAdmin()) {
+            return response()->json([
+                'message' => 'Unauthorized. Only administrators can terminate staff members.',
+            ], 403);
+        }
+
+        $storeId = $currentUser->store_id;
+        $targetUser = User::where('store_id', $storeId)->findOrFail($id);
+
+        if ($targetUser->user_id === $currentUser->user_id) {
+            return response()->json([
+                'message' => 'You cannot terminate your own administrator account.',
+            ], 422);
+        }
+
+        if ($targetUser->role === 'admin') {
+            return response()->json([
+                'message' => 'Administrator accounts cannot be terminated through this action. Only cashiers and managers can be terminated.',
+            ], 422);
+        }
+
+        $targetUser->is_active = false;
+        $targetUser->save();
+
+        // Revoke all active login tokens immediately
+        $targetUser->tokens()->delete();
+
+        return response()->json([
+            'message' => "Staff member {$targetUser->name} ({$targetUser->role}) has been terminated successfully.",
+            'user' => $targetUser,
+        ]);
+    }
+
+    /**
+     * Reactivate a terminated staff member.
+     */
+    public function reactivate(Request $request, int $id): JsonResponse
+    {
+        $currentUser = $request->user();
+
+        if (!$currentUser->isAdmin()) {
+            return response()->json([
+                'message' => 'Unauthorized. Only administrators can reactivate staff members.',
+            ], 403);
+        }
+
+        $storeId = $currentUser->store_id;
+        $targetUser = User::where('store_id', $storeId)->findOrFail($id);
+
+        $targetUser->is_active = true;
+        $targetUser->save();
+
+        return response()->json([
+            'message' => "Staff member {$targetUser->name} has been reactivated successfully.",
+            'user' => $targetUser,
+        ]);
+    }
 }
+
