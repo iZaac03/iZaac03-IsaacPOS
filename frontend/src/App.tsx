@@ -17,6 +17,7 @@ export const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [activeTab, setActiveTab] = useState<ActiveTab>('pos');
   const [lowStockCount, setLowStockCount] = useState<number>(0);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isElderMode, setIsElderMode] = useState<boolean>(() => {
     return localStorage.getItem('klaropos_elder_mode') === 'true';
   });
@@ -30,6 +31,7 @@ export const AppContent: React.FC = () => {
     if (user?.role === 'cashier' && (activeTab === 'settings' || activeTab === 'staff' || activeTab === 'purchase_orders')) {
       setActiveTab('pos');
     }
+    setIsMobileSidebarOpen(false);
   }, [user, activeTab]);
 
   const fetchLowStockCount = async () => {
@@ -76,11 +78,17 @@ export const AppContent: React.FC = () => {
         lowStockCount={lowStockCount}
         isElderMode={isElderMode}
         setIsElderMode={setIsElderMode}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <TopHeader activeTab={activeTab} isElderMode={isElderMode} />
+        <TopHeader
+          activeTab={activeTab}
+          isElderMode={isElderMode}
+          onToggleSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
+        />
 
         <main className="flex-1 overflow-y-auto bg-slate-50">
           {activeTab === 'pos' && <POSTerminal isElderMode={isElderMode} />}

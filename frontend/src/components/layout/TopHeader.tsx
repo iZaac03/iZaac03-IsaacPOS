@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Clock, CheckCircle2, Building, ShieldCheck } from 'lucide-react';
+import { Clock, CheckCircle2, Building, ShieldCheck, Menu } from 'lucide-react';
 import { ActiveTab } from './Sidebar';
 
 export interface TopHeaderProps {
   activeTab: ActiveTab;
   isElderMode: boolean;
+  onToggleSidebar?: () => void;
 }
 
-export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode }) => {
+export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode, onToggleSidebar }) => {
   const { store, user } = useAuth();
   const [timeString, setTimeString] = useState<string>('');
   const [dateString, setDateString] = useState<string>('');
@@ -88,17 +89,27 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode }) 
   const info = getPageInfo();
 
   return (
-    <header className="h-16 px-6 border-b-2 border-slate-200 flex items-center justify-between bg-white text-slate-900 shadow-2xs z-20">
-      <div className="flex items-center gap-3">
+    <header className="h-16 px-4 sm:px-6 border-b-2 border-slate-200 flex items-center justify-between bg-white text-slate-900 shadow-2xs z-20">
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border-2 border-slate-200 transition-colors shadow-2xs"
+            title="Toggle Navigation Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
         <div>
           <h2
             className={`font-black tracking-tight leading-tight ${
-              isElderMode ? 'text-2xl text-emerald-700' : 'text-xl text-slate-900'
+              isElderMode ? 'text-xl sm:text-2xl text-emerald-700' : 'text-lg sm:text-xl text-slate-900'
             }`}
           >
             {info.title}
           </h2>
-          <p className="text-xs font-semibold text-slate-500">{info.desc}</p>
+          <p className="text-xs font-semibold text-slate-500 hidden sm:block">{info.desc}</p>
         </div>
       </div>
 

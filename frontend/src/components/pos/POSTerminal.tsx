@@ -33,6 +33,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [scanMessage, setScanMessage] = useState<{ text: string; isError?: boolean } | null>(null);
+  const [mobileView, setMobileView] = useState<'catalog' | 'cart'>('catalog');
 
   // Discount & Customer state
   const [isSeniorPwd, setIsSeniorPwd] = useState<boolean>(false);
@@ -254,12 +255,47 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
         isElderMode ? 'text-base' : 'text-sm'
       }`}
     >
+      {/* Mobile-Only View Switcher (Tabs for Catalog vs Cart on small screens) */}
+      <div className="md:hidden px-4 py-2.5 bg-white border-b-2 border-slate-200 flex items-center gap-2 z-10 shrink-0">
+        <button
+          type="button"
+          onClick={() => setMobileView('catalog')}
+          className={`flex-1 py-2 rounded-xl font-black text-xs transition-all ${
+            mobileView === 'catalog'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          Product Catalog ({filteredProducts.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileView('cart')}
+          className={`flex-1 py-2 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 ${
+            mobileView === 'cart'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          <span>Order Cart ({cart.reduce((s, i) => s + i.quantity, 0)})</span>
+          {cart.length > 0 && (
+            <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-900 font-mono text-[10px]">
+              {formatPHP(totalPayable)}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* LEFT SECTION: Catalog & Fast Touch Controls (BRIGHT MODE) */}
-      <div className="flex-1 flex flex-col h-full border-r-2 border-slate-200 overflow-hidden">
+      <div
+        className={`flex-1 flex flex-col h-full border-r-2 border-slate-200 overflow-hidden ${
+          mobileView === 'cart' ? 'hidden md:flex' : 'flex'
+        }`}
+      >
         {/* Top Control Bar: Crisp White Barcode & Search */}
-        <div className="p-4 bg-white border-b-2 border-slate-200 flex flex-wrap items-center gap-3 shadow-xs">
+        <div className="p-3 sm:p-4 bg-white border-b-2 border-slate-200 flex flex-wrap items-center gap-2.5 sm:gap-3 shadow-xs">
           {/* Barcode Scan Form */}
-          <form onSubmit={handleBarcodeSubmit} className="flex-1 min-w-[280px]">
+          <form onSubmit={handleBarcodeSubmit} className="flex-1 min-w-[220px]">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-600">
                 <Barcode className="w-6 h-6" />
@@ -278,7 +314,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
           </form>
 
           {/* Text Search Input */}
-          <div className="w-72 relative">
+          <div className="w-full sm:w-60 md:w-72 relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
               <Search className="w-5 h-5" />
             </div>
@@ -439,11 +475,30 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
             </div>
           )}
         </div>
+
+        {/* Mobile Floating Cart Summary Button (only when in catalog on small screens) */}
+        {cart.length > 0 && mobileView === 'catalog' && (
+          <div className="md:hidden p-3 bg-white border-t-2 border-slate-200 shadow-lg shrink-0">
+            <button
+              type="button"
+              onClick={() => setMobileView('cart')}
+              className="w-full h-12 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm flex items-center justify-between px-4 shadow-md shadow-emerald-700/30 active:scale-98 transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5" />
+                <span>View Cart ({cart.reduce((s, i) => s + i.quantity, 0)} items)</span>
+              </div>
+              <span className="font-mono text-base">{formatPHP(totalPayable)} →</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* RIGHT SECTION: Bright Active Cart & Checkout Panel */}
       <div
         className={`bg-white flex flex-col h-full border-l-2 border-slate-200 shadow-2xl ${
+          mobileView === 'catalog' ? 'hidden md:flex' : 'flex'
+        } ${
           isElderMode ? 'w-full md:w-[420px] lg:w-[460px]' : 'w-full md:w-[380px] lg:w-[410px]'
         }`}
       >

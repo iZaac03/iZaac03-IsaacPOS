@@ -18,6 +18,7 @@ import {
   ZoomIn,
   ZoomOut,
   Sparkles,
+  X,
 } from 'lucide-react';
 
 export type ActiveTab =
@@ -36,6 +37,8 @@ export interface SidebarProps {
   lowStockCount: number;
   isElderMode: boolean;
   setIsElderMode: React.Dispatch<React.SetStateAction<boolean>>;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -44,6 +47,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   lowStockCount,
   isElderMode,
   setIsElderMode,
+  isMobileOpen,
+  onCloseMobile,
 }) => {
   const { user, store, logout } = useAuth();
   const [collapsed, setCollapsed] = useState<boolean>(false);
@@ -131,50 +136,72 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside
-      className={`h-screen bg-slate-900 border-r border-slate-800 text-slate-100 flex flex-col justify-between transition-all duration-300 z-30 select-none shadow-xl ${
-        collapsed ? 'w-20' : 'w-64 sm:w-72'
-      }`}
-    >
-      {/* Top Brand Header */}
-      <div>
-        <div className="h-16 px-4 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <img
-              src="/logo.png"
-              alt="Daumar Grocery Store"
-              className="w-11 h-11 rounded-full object-cover bg-white p-0.5 shadow-md shadow-emerald-600/20 shrink-0 border border-emerald-500/30"
-            />
-            {!collapsed && (
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-black text-sm tracking-tight text-white truncate">
-                    Daumar Grocery
-                  </span>
-                  <span className="text-[9px] px-1 py-0.2 rounded font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
-                    EST. 2026
-                  </span>
-                </div>
-                <p className="text-[11px] text-emerald-400 font-medium truncate">
-                  Fresh & Quality Store
-                </p>
-              </div>
-            )}
-          </div>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isMobileOpen && (
+        <div
+          onClick={onCloseMobile}
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40 lg:hidden animate-in fade-in duration-200"
+        />
+      )}
 
-          <button
-            type="button"
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-          >
-            {collapsed ? (
-              <ChevronRight className="w-5 h-5" />
-            ) : (
-              <ChevronLeft className="w-5 h-5" />
-            )}
-          </button>
-        </div>
+      <aside
+        className={`fixed inset-y-0 left-0 lg:static h-screen bg-slate-900 border-r border-slate-800 text-slate-100 flex flex-col justify-between transition-all duration-300 z-50 select-none shadow-2xl ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } ${collapsed ? 'w-20' : 'w-64 sm:w-72'}`}
+      >
+        {/* Top Brand Header */}
+        <div>
+          <div className="h-16 px-4 border-b border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="Daumar Grocery Store"
+                className="w-11 h-11 rounded-full object-cover bg-white p-0.5 shadow-md shadow-emerald-600/20 shrink-0 border border-emerald-500/30"
+              />
+              {!collapsed && (
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black text-sm tracking-tight text-white truncate">
+                      Daumar Grocery
+                    </span>
+                    <span className="text-[9px] px-1 py-0.2 rounded font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                      EST. 2026
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-emerald-400 font-medium truncate">
+                    Fresh & Quality Store
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1">
+              {/* Close button on mobile */}
+              <button
+                type="button"
+                onClick={onCloseMobile}
+                className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                title="Close Menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Desktop collapse button */}
+              <button
+                type="button"
+                onClick={() => setCollapsed(!collapsed)}
+                className="hidden lg:block p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              >
+                {collapsed ? (
+                  <ChevronRight className="w-5 h-5" />
+                ) : (
+                  <ChevronLeft className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
 
         {/* Elder-Friendly Text & Scale Switcher */}
         <div className="p-3 border-b border-slate-800/80">
@@ -222,7 +249,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  onCloseMobile?.();
+                }}
                 className={`w-full flex items-center rounded-xl transition-all text-left ${
                   collapsed ? 'justify-center p-3' : 'px-3.5 py-3 gap-3.5'
                 } ${
@@ -323,5 +353,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
     </aside>
-  );
+  </>
+);
 };
