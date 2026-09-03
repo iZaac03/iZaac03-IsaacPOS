@@ -28,14 +28,22 @@ export const LoginPage: React.FC = () => {
     try {
       await login(email.trim(), password);
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.errors?.email?.[0] ||
-          'Invalid credentials. Please verify your email and password.'
-      );
+      console.error('Login error details:', err);
+      if (!err.response) {
+        setError('Network Error: Cannot reach backend server. If you are on Vercel, the Laravel backend is not running on Vercel.');
+      } else if (err.response.status === 404 || typeof err.response.data === 'string') {
+        setError('API Endpoint Not Found (404). If you are on Vercel, please test at http://localhost:5173 where the local backend is running.');
+      } else {
+        setError(
+          err.response?.data?.message ||
+            err.response?.data?.errors?.email?.[0] ||
+            'Invalid credentials. Please verify your email and password.'
+        );
+      }
     } finally {
       setIsLoading(false);
     }
+
   };
 
   const fillCredentials = (userEmail: string, userPass: string) => {
