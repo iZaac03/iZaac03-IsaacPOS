@@ -398,7 +398,7 @@ const playErrorBuzz = () => {
           <span>Order Cart ({cart.reduce((s, i) => s + i.quantity, 0)})</span>
           {cart.length > 0 && (
             <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-900 font-mono text-[10px]">
-              {formatPHP(totalPayable)}
+              {formatPHP(totalDue)}
             </span>
           )}
         </button>
@@ -617,7 +617,7 @@ const playErrorBuzz = () => {
                 <ShoppingBag className="w-5 h-5" />
                 <span>View Cart ({cart.reduce((s, i) => s + i.quantity, 0)} items)</span>
               </div>
-              <span className="font-mono text-base">{formatPHP(totalPayable)} →</span>
+              <span className="font-mono text-base">{formatPHP(totalDue)} →</span>
             </button>
           </div>
         )}
