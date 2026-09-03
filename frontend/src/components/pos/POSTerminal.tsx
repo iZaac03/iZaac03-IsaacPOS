@@ -109,9 +109,20 @@ const playErrorBuzz = () => {
     barcodeInputRef.current?.focus();
   }, []);
 
+  const lastScanCodeRef = useRef<string>('');
+  const lastScanTimeRef = useRef<number>(0);
+
   const processScannedCode = async (rawCode: string) => {
     const code = rawCode.trim();
     if (!code) return;
+
+    const now = Date.now();
+    // Guard against rapid duplicate scans of the same barcode within 1500ms
+    if (code === lastScanCodeRef.current && now - lastScanTimeRef.current < 1500) {
+      return;
+    }
+    lastScanCodeRef.current = code;
+    lastScanTimeRef.current = now;
 
     // 1. Instant in-memory check (0ms response)
     const localMatch = products.find(

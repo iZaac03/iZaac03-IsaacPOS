@@ -73,6 +73,8 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
   const [lastScanned, setLastScanned] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'camera' | 'sheet'>('camera');
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const lastScannedCodeRef = useRef<string>('');
+  const lastScannedTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!isOpen || activeTab !== 'camera') {
@@ -111,6 +113,17 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
             aspectRatio: 1.777778,
           },
           (decodedText) => {
+            const now = Date.now();
+            // Prevent machine-gun rapid re-scanning of the same barcode within 2 seconds
+            if (
+              decodedText === lastScannedCodeRef.current &&
+              now - lastScannedTimeRef.current < 2000
+            ) {
+              return;
+            }
+
+            lastScannedCodeRef.current = decodedText;
+            lastScannedTimeRef.current = now;
             setLastScanned(decodedText);
             onScanSuccess(decodedText);
           },
