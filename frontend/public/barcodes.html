@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daumar Grocery Store — Scannable Barcode Sheet</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 24px;
+    }
+    .header {
+      max-width: 1000px;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-b: 1px solid #334155;
+      padding-bottom: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #fff;
+      padding: 2px;
+      border: 2px solid #10b981;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+    }
+    p.sub {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .instructions {
+      max-width: 1000px;
+      margin: 0 auto 24px;
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .instruction-text {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+    .instruction-text strong {
+      color: #10b981;
+    }
+    .print-btn {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .print-btn:hover {
+      background: #059669;
+    }
+    .grid {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      border: 3px solid #e2e8f0;
+      position: relative;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #10b981;
+    }
+    .product-category {
+      align-self: flex-start;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #059669;
+      background: #ecfdf5;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .product-name {
+      font-size: 15px;
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.3;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+    .price-pill {
+      font-size: 16px;
+      font-weight: 900;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #047857;
+      margin-bottom: 12px;
+    }
+    .barcode-svg-wrap {
+      width: 100%;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 0;
+      border-radius: 8px;
+      border: 1px dashed #cbd5e1;
+    }
+    svg.barcode-svg {
+      max-width: 100%;
+      height: 80px;
+    }
+    .sku-tag {
+      font-size: 11px;
+      font-mono;
+      color: #64748b;
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        padding: 0;
+      }
+      .instructions, .print-btn, .header {
+        display: none;
+      }
+      .card {
+        box-shadow: none;
+        border: 2px solid #000;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <img src="/logo.png" alt="Daumar Logo" />
+      <div>
+        <h1>Daumar Grocery Store — Barcode Test Sheet</h1>
+        <p class="sub">High-resolution retail barcodes (EAN-13 / Code 128) for hardware guns & camera scanner</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <div class="instruction-text">
+      <strong>How to test scanning:</strong><br/>
+      1. Open <strong>IsaacPOS Register</strong> at <a href="http://localhost:5173" target="_blank" style="color:#38bdf8; text-decoration: underline;">http://localhost:5173</a> in another window, or on your tablet / iPad / phone.<br/>
+      2. Point your <strong>USB/Bluetooth Barcode Gun</strong> or click <strong>"📷 Camera Scan"</strong> on the POS register and aim at any barcode below.<br/>
+      3. The register will play a realistic <strong>"BEEP!"</strong> and immediately add the item to your active order cart!
+    </div>
+    <button class="print-btn" onclick="window.print()">🖨️ Print Barcode Sheet</button>
+  </div>
+
+  <div class="grid" id="barcodes-grid"></div>
+
+  <script>
+    const sampleProducts = [
+      {
+        barcode: '4800016054117',
+        sku: 'BEV-SMB-001',
+        name: 'San Miguel Pale Pilsen 330ml Can',
+        category: 'Beverages & Drinks',
+        price: '₱55.00'
+      },
+      {
+        barcode: '8996001304212',
+        sku: 'BEV-KOP-002',
+        name: 'Kopiko 78C Coffee 240ml Bottle',
+        category: 'Beverages & Drinks',
+        price: '₱34.00'
+      },
+      {
+        barcode: '4800016644202',
+        sku: 'BEV-C2-003',
+        name: 'C2 Green Tea Apple 500ml Bottle',
+        category: 'Beverages & Drinks',
+        price: '₱30.00'
+      },
+      {
+        barcode: '4801981112211',
+        sku: 'BEV-WLK-004',
+        name: 'Wilkins Pure Purified Water 500ml',
+        category: 'Beverages & Drinks',
+        price: '₱20.00'
+      },
+      {
+        barcode: '4800016552118',
+        sku: 'GRO-LM-001',
+        name: 'Lucky Me! Pancit Canton Kalamansi 80g',
+        category: 'Packaged Foods & Groceries',
+        price: '₱18.00'
+      },
+      {
+        barcode: '4800016551104',
+        sku: 'GRO-LM-002',
+        name: 'Lucky Me! Instant Mami Chicken 55g',
+        category: 'Packaged Foods & Groceries',
+        price: '₱16.50'
+      },
+      {
+        barcode: '4801668600115',
+        sku: 'GRO-DP-003',
+        name: 'Datu Puti Pure Soy Sauce 385ml Bottle',
+        category: 'Packaged Foods & Groceries',
+        price: '₱24.00'
+      },
+      {
+        barcode: '4801668600221',
+        sku: 'GRO-SS-004',
+        name: 'Silver Swan Cane Vinegar 385ml Bottle',
+        category: 'Packaged Foods & Groceries',
+        price: '₱22.50'
+      },
+      {
+        barcode: '4800361389421',
+        sku: 'GRO-BB-005',
+        name: 'Bear Brand Fortified Powdered Milk 320g',
+        category: 'Packaged Foods & Groceries',
+        price: '₱145.00'
+      },
+      {
+        barcode: '7613035123456',
+        sku: 'GRO-NES-006',
+        name: 'Nescafe Classic Instant Coffee Jar 100g',
+        category: 'Packaged Foods & Groceries',
+        price: '₱135.00'
+      },
+      {
+        barcode: '4902430112319',
+        sku: 'HOU-DWN-001',
+        name: 'Downy Sunrise Fresh Fabric Softener 25ml',
+        category: 'Household & Cleaning',
+        price: '₱10.00'
+      },
+      {
+        barcode: '4902430441228',
+        sku: 'PER-SFG-001',
+        name: 'Safeguard Pure White Antibacterial Soap 130g',
+        category: 'Personal Care & Hygiene',
+        price: '₱48.00'
+      }
+    ];
+
+    const container = document.getElementById('barcodes-grid');
+
+    sampleProducts.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const svgId = `barcode-${index}`;
+
+      card.innerHTML = `
+        <span class="product-category">${item.category}</span>
+        <h3 class="product-name">${item.name}</h3>
+        <div class="price-pill">${item.price}</div>
+        <div class="barcode-svg-wrap">
+          <svg id="${svgId}" class="barcode-svg"></svg>
+        </div>
+        <span class="sku-tag">SKU: ${item.sku}</span>
+      `;
+      container.appendChild(card);
+
+      // Render crisp Code 128 barcode
+      JsBarcode(`#${svgId}`, item.barcode, {
+        format: 'CODE128',
+        lineColor: '#0f172a',
+        width: 2.2,
+        height: 65,
+        displayValue: true,
+        font: 'monospace',
+        fontSize: 14,
+        textMargin: 4
+      });
+    });
+  </script>
+</body>
+</html>
