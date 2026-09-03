@@ -2,22 +2,26 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { Lock, Mail, Shield, Key, UserCheck, Delete, ArrowRight } from 'lucide-react';
+import { Lock, Mail, Delete } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login, loginWithPin } = useAuth();
 
   const [authMode, setAuthMode] = useState<'password' | 'pin'>('password');
-  const [email, setEmail] = useState<string>('cashier@klaropos.ph');
-  const [password, setPassword] = useState<string>('password123');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [pinCode, setPinCode] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loggingInRole, setLoggingInRole] = useState<string | null>(null);
 
-  // Email/Password Submit
+  // Manual Email/Password Submit
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim() || !password) {
+      setError('Please enter both your email address and password.');
+      return;
+    }
+
     setError('');
     setIsLoading(true);
     try {
@@ -25,33 +29,14 @@ export const LoginPage: React.FC = () => {
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          'Login failed. Please verify your email and password.'
+          'Invalid credentials. Please verify your email and password.'
       );
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Quick 1-Click Instant Login
-  const handleInstantLogin = async (roleName: string, roleEmail: string) => {
-    setError('');
-    setLoggingInRole(roleName);
-    setIsLoading(true);
-    setEmail(roleEmail);
-    setPassword('password123');
-    try {
-      await login(roleEmail, 'password123');
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || `Failed to sign in as ${roleName}. Please try again.`
-      );
-    } finally {
-      setIsLoading(false);
-      setLoggingInRole(null);
-    }
-  };
-
-  // PIN Submit
+  // Manual PIN Submit
   const handlePinSubmit = async (codeToSubmit?: string) => {
     const code = codeToSubmit || pinCode;
     if (code.length < 4) {
@@ -64,7 +49,7 @@ export const LoginPage: React.FC = () => {
     try {
       await loginWithPin(code);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid PIN code. Please check your PIN.');
+      setError(err.response?.data?.message || 'Invalid staff PIN. Please try again.');
       setPinCode('');
     } finally {
       setIsLoading(false);
@@ -93,7 +78,7 @@ export const LoginPage: React.FC = () => {
       {/* Background radial accent */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12)_0,transparent_70%)] pointer-events-none" />
 
-      <div className="w-full max-w-md relative z-10 space-y-5">
+      <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-block p-1 bg-white rounded-full shadow-2xl shadow-emerald-950/80 border-2 border-emerald-500/50 mb-1">
@@ -112,7 +97,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Login Card */}
-        <div className="bg-slate-900 border-2 border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
+        <div className="bg-slate-900 border-2 border-slate-800 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-5">
           {/* Auth Mode Tabs */}
           <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold">
             <button
@@ -151,16 +136,18 @@ export const LoginPage: React.FC = () => {
             </div>
           )}
 
-          {/* MODE 1: Email & Password Form */}
+          {/* MODE 1: Email & Password Form (Empty, Ready for Manual Typing) */}
           {authMode === 'password' && (
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <Input
                 label="Staff Email Address"
                 type="email"
                 required
+                autoFocus
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="cashier@klaropos.ph"
+                placeholder="e.g. cashier@klaropos.ph"
                 darkTheme={true}
                 icon={<Mail className="w-4 h-4" />}
               />
@@ -169,9 +156,10 @@ export const LoginPage: React.FC = () => {
                 label="Account Password"
                 type="password"
                 required
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Enter password"
                 darkTheme={true}
                 icon={<Lock className="w-4 h-4" />}
               />
@@ -180,8 +168,8 @@ export const LoginPage: React.FC = () => {
                 type="submit"
                 variant="emerald"
                 size="lg"
-                className="w-full text-sm font-black shadow-lg shadow-emerald-600/30 h-12"
-                isLoading={isLoading && !loggingInRole}
+                className="w-full text-sm font-black shadow-lg shadow-emerald-600/30 h-12 mt-2"
+                isLoading={isLoading}
               >
                 Sign In to POS Register
               </Button>
@@ -259,59 +247,6 @@ export const LoginPage: React.FC = () => {
               </Button>
             </div>
           )}
-
-          {/* Quick 1-Click Instant Login (actually logs in immediately!) */}
-          <div className="pt-4 border-t-2 border-slate-800/80 space-y-2.5">
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                Instant 1-Click Demo Login:
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              {/* Cashier button */}
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={() => handleInstantLogin('Cashier', 'cashier@klaropos.ph')}
-                className="p-2.5 rounded-xl bg-slate-950 hover:bg-emerald-950/40 border-2 border-slate-800 hover:border-emerald-500 text-slate-200 text-xs flex flex-col items-center gap-1 transition-all active:scale-95"
-              >
-                <UserCheck className="w-5 h-5 text-emerald-400" />
-                <span className="font-black text-xs text-white">Cashier</span>
-                <span className="text-[10px] text-emerald-400/90 font-mono font-bold">
-                  {loggingInRole === 'Cashier' ? 'Signing in...' : 'PIN: 112233'}
-                </span>
-              </button>
-
-              {/* Manager button */}
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={() => handleInstantLogin('Manager', 'manager@klaropos.ph')}
-                className="p-2.5 rounded-xl bg-slate-950 hover:bg-indigo-950/40 border-2 border-slate-800 hover:border-indigo-500 text-slate-200 text-xs flex flex-col items-center gap-1 transition-all active:scale-95"
-              >
-                <Key className="w-5 h-5 text-indigo-400" />
-                <span className="font-black text-xs text-white">Manager</span>
-                <span className="text-[10px] text-indigo-400/90 font-mono font-bold">
-                  {loggingInRole === 'Manager' ? 'Signing in...' : 'PIN: 123456'}
-                </span>
-              </button>
-
-              {/* Admin button */}
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={() => handleInstantLogin('Admin', 'admin@klaropos.ph')}
-                className="p-2.5 rounded-xl bg-slate-950 hover:bg-purple-950/40 border-2 border-slate-800 hover:border-purple-500 text-slate-200 text-xs flex flex-col items-center gap-1 transition-all active:scale-95"
-              >
-                <Shield className="w-5 h-5 text-purple-400" />
-                <span className="font-black text-xs text-white">Admin</span>
-                <span className="text-[10px] text-purple-400/90 font-mono font-bold">
-                  {loggingInRole === 'Admin' ? 'Signing in...' : 'PIN: 999999'}
-                </span>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Footer */}
