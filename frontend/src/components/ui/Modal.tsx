@@ -8,7 +8,7 @@ export interface ModalProps {
   subtitle?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
   darkTheme?: boolean;
 }
 
@@ -40,8 +40,9 @@ export const Modal: React.FC<ModalProps> = ({
     lg: 'max-w-lg',
     xl: 'max-w-xl',
     '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
     '4xl': 'max-w-4xl',
-  }[maxWidth];
+  }[maxWidth] || 'max-w-2xl';
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
