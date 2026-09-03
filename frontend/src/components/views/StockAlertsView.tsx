@@ -13,16 +13,18 @@ import {
   Send,
   CheckCircle,
   Clock,
-  ArrowRight,
   User,
   PackagePlus,
   FileText,
+  Check,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onNavigateToPO }) => {
   const { user } = useAuth();
   const isCashier = user?.role === 'cashier';
+  const isAdminOrManager = user?.role === 'admin' || user?.role === 'manager';
 
   const [items, setItems] = useState<Product[]>([]);
   const [stockRequests, setStockRequests] = useState<StockRequest[]>([]);
@@ -30,7 +32,7 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeSubTab, setActiveSubTab] = useState<'alerts' | 'requests'>('alerts');
 
-  // Request Modal State
+  // Cashier Request Modal State
   const [isRequestModalOpen, setIsRequestModalOpen] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [requestQty, setRequestQty] = useState<string>('20');
@@ -38,12 +40,14 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
   const [requestNotes, setRequestNotes] = useState<string>('');
   const [isSubmittingRequest, setIsSubmittingRequest] = useState<boolean>(false);
 
-  // Convert to PO Modal State (Admin / Manager)
-  const [isConvertModalOpen, setIsConvertModalOpen] = useState<boolean>(false);
+  // Admin/Manager Order & PO Modal State
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState<boolean>(false);
   const [selectedRequest, setSelectedRequest] = useState<StockRequest | null>(null);
-  const [convertSupplierId, setConvertSupplierId] = useState<string>('');
-  const [convertUnitCost, setConvertUnitCost] = useState<string>('');
-  const [isConverting, setIsConverting] = useState<boolean>(false);
+  const [orderProduct, setOrderProduct] = useState<Product | null>(null);
+  const [orderSupplierId, setOrderSupplierId] = useState<string>('');
+  const [orderQuantity, setOrderQuantity] = useState<string>('20');
+  const [orderUnitCost, setOrderUnitCost] = useState<string>('');
+  const [isOrdering, setIsOrdering] = useState<boolean>(false);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -54,8 +58,15 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
         api.get('/suppliers'),
       ]);
       setItems(alertsRes.data.items || []);
-      setStockRequests(reqRes.data || []);
+      const reqs = reqRes.data || [];
+      setStockRequests(reqs);
       setSuppliers(supRes.data || []);
+
+      // If Admin or Manager and there are pending requests, switch to requests view
+      const pendingCount = reqs.filter((r: StockRequest) => r.status === 'pending').length;
+      if (isAdminOrManager && pendingCount > 0 && activeSubTab === 'alerts') {
+        setActiveSubTab('requests');
+      }
     } catch (err) {
       console.error('Failed to load alerts & stock requests', err);
     } finally {
@@ -67,7 +78,8 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
     fetchData();
   }, []);
 
-  const handleOpenRequest = (prod?: Product) => {
+  // Cashier: Open Request Modal
+  const handleOpenCashierRequest = (prod?: Product) => {
     if (prod) {
       setSelectedProduct(prod);
       const reorder = parseFloat(prod.reorder_level?.toString() || '20');
@@ -81,6 +93,7 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
     setIsRequestModalOpen(true);
   };
 
+  // Cashier: Submit Request to Manager/Admin
   const handleSubmitStockRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduct) return;
@@ -105,40 +118,75 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
     }
   };
 
-  const handleOpenConvert = (req: StockRequest) => {
+  // Admin/Manager: Open Order Modal from Cashier Request
+  const handleOpenAcceptAndOrder = (req: StockRequest) => {
     setSelectedRequest(req);
-    setConvertSupplierId(suppliers[0]?.supplier_id?.toString() || '');
-    setConvertUnitCost(req.product?.cost_price?.toString() || '0');
-    setIsConvertModalOpen(true);
+    setOrderProduct(req.product || null);
+    setOrderSupplierId(suppliers[0]?.supplier_id?.toString() || '');
+    setOrderQuantity(req.requested_quantity.toString());
+    setOrderUnitCost(req.product?.cost_price?.toString() || '0');
+    setIsOrderModalOpen(true);
   };
 
-  const handleConvertPO = async (e: React.FormEvent) => {
+  // Admin/Manager: Open Direct Order Modal from Low Stock Item
+  const handleOpenDirectOrder = (prod: Product) => {
+    setSelectedRequest(null);
+    setOrderProduct(prod);
+    setOrderSupplierId(suppliers[0]?.supplier_id?.toString() || '');
+    const reorder = parseFloat(prod.reorder_level?.toString() || '20');
+    setOrderQuantity(Math.max(10, reorder * 2).toString());
+    setOrderUnitCost(prod.cost_price?.toString() || '0');
+    setIsOrderModalOpen(true);
+  };
+
+  // Admin/Manager: Submit Supplier Purchase Order
+  const handleProcessOrderPO = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRequest) return;
-    setIsConverting(true);
+    if (!orderProduct) return;
+    setIsOrdering(true);
 
     try {
-      const res = await api.post(`/stock-requests/${selectedRequest.request_id}/convert-po`, {
-        supplier_id: parseInt(convertSupplierId),
-        unit_cost: parseFloat(convertUnitCost) || 0,
-      });
+      if (selectedRequest) {
+        // Convert existing cashier request to PO
+        const res = await api.post(`/stock-requests/${selectedRequest.request_id}/convert-po`, {
+          supplier_id: parseInt(orderSupplierId),
+          unit_cost: parseFloat(orderUnitCost) || 0,
+        });
+        alert(res.data.message || 'Purchase order generated successfully!');
+      } else {
+        // Direct Supplier Purchase Order
+        const qty = parseFloat(orderQuantity) || 1;
+        const cost = parseFloat(orderUnitCost) || 0;
+        const res = await api.post('/purchase-orders', {
+          supplier_id: parseInt(orderSupplierId),
+          items: [
+            {
+              product_id: orderProduct.product_id,
+              quantity_ordered: qty,
+              unit_cost: cost,
+            },
+          ],
+          notes: `Direct Restock PO for ${orderProduct.name}`,
+        });
+        alert(res.data.message || 'Supplier Purchase Order created successfully!');
+      }
 
-      alert(res.data.message || 'Purchase order generated!');
-      setIsConvertModalOpen(false);
+      setIsOrderModalOpen(false);
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to convert to purchase order');
+      alert(err.response?.data?.message || 'Failed to generate purchase order');
     } finally {
-      setIsConverting(false);
+      setIsOrdering(false);
     }
   };
 
+  // Admin/Manager: Reject or update request status
   const handleUpdateStatus = async (requestId: number, newStatus: string) => {
     try {
       await api.put(`/stock-requests/${requestId}/status`, { status: newStatus });
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to update status');
+      alert(err.response?.data?.message || 'Failed to update request status');
     }
   };
 
@@ -146,26 +194,26 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Header & Quick Action Buttons */}
+      {/* Header & Role Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Low Stock & Reorder Alerts
+              {isAdminOrManager ? 'Restock Approvals & Low Stock Alerts' : 'Low Stock & Restock Requests'}
             </h1>
             <Badge variant="warning" size="md">
-              {items.length} Needs Attention
+              {items.length} Depleted Items
             </Badge>
             {pendingRequestsCount > 0 && (
-              <Badge variant="info" size="md">
-                {pendingRequestsCount} Pending Requests
+              <Badge variant="danger" size="md">
+                {pendingRequestsCount} Pending Approvals
               </Badge>
             )}
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            {isCashier
-              ? 'Submit restock requests to Managers & Admins for items running low on store shelves'
-              : 'Review depleted products and approve cashier restock requests into supplier Purchase Orders'}
+            {isAdminOrManager
+              ? 'Review and accept cashier stock requests, and generate supplier Purchase Orders (POs)'
+              : 'Submit restock requests to store managers for items running low on supermarket shelves'}
           </p>
         </div>
 
@@ -179,25 +227,27 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
             Refresh
           </Button>
 
-          {/* Cashier button: Request Restock */}
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => handleOpenRequest()}
-            icon={<PackagePlus className="w-4 h-4" />}
-          >
-            Submit Stock Request
-          </Button>
-
-          {/* Non-cashier button: Create Purchase Order directly */}
-          {!isCashier && onNavigateToPO && (
+          {/* Cashier: Submit Stock Request */}
+          {isCashier && (
             <Button
-              variant="outline"
+              variant="primary"
+              size="sm"
+              onClick={() => handleOpenCashierRequest()}
+              icon={<PackagePlus className="w-4 h-4" />}
+            >
+              Submit Stock Request
+            </Button>
+          )}
+
+          {/* Admin / Manager: Direct PO Creation */}
+          {isAdminOrManager && onNavigateToPO && (
+            <Button
+              variant="emerald"
               size="sm"
               onClick={onNavigateToPO}
-              icon={<ShoppingCart className="w-3.5 h-3.5" />}
+              icon={<ShoppingCart className="w-4 h-4" />}
             >
-              Go to Purchase Orders
+              Supplier Purchase Orders
             </Button>
           )}
         </div>
@@ -228,9 +278,13 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
           }`}
         >
           <FileText className="w-4 h-4 text-sky-500" />
-          <span>Cashier Restock Requests ({stockRequests.length})</span>
+          <span>
+            {isAdminOrManager
+              ? `Cashier Requests to Approve (${pendingRequestsCount} pending)`
+              : `My Submitted Requests (${stockRequests.length})`}
+          </span>
           {pendingRequestsCount > 0 && (
-            <span className="px-2 py-0.2 rounded-full text-xs font-black bg-amber-500 text-white">
+            <span className="px-2 py-0.2 rounded-full text-xs font-black bg-rose-600 text-white animate-pulse">
               {pendingRequestsCount}
             </span>
           )}
@@ -263,7 +317,9 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                       <th className="py-3 px-4 text-right">Current Stock</th>
                       <th className="py-3 px-4 text-right">Reorder Level</th>
                       <th className="py-3 px-4 text-center">Urgency</th>
-                      <th className="py-3 px-4 text-right">Restock Action</th>
+                      <th className="py-3 px-4 text-right">
+                        {isAdminOrManager ? 'Procurement Action' : 'Cashier Action'}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -271,6 +327,11 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                       const stock = parseFloat(p.stock_quantity.toString());
                       const reorder = parseFloat(p.reorder_level.toString());
                       const isOut = stock <= 0;
+
+                      // Check if there's a pending cashier request for this item
+                      const pendingReq = stockRequests.find(
+                        (r) => r.product_id === p.product_id && r.status === 'pending'
+                      );
 
                       return (
                         <tr key={p.product_id} className="hover:bg-slate-50/70 transition-colors">
@@ -307,14 +368,43 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                             )}
                           </td>
                           <td className="py-3 px-4 text-right whitespace-nowrap">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenRequest(p)}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors"
-                            >
-                              <Send className="w-3 h-3" />
-                              <span>Request Restock</span>
-                            </button>
+                            {/* CASHIER ACTION: Request Restock */}
+                            {isCashier && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenCashierRequest(p)}
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors"
+                              >
+                                <Send className="w-3 h-3" />
+                                <span>Request Restock</span>
+                              </button>
+                            )}
+
+                            {/* ADMIN / MANAGER ACTION: Order Stock or Accept Request */}
+                            {isAdminOrManager && (
+                              <>
+                                {pendingReq ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenAcceptAndOrder(pendingReq)}
+                                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors"
+                                    title="Cashier already requested this item"
+                                  >
+                                    <Clock className="w-3 h-3" />
+                                    <span>Accept Cashier Request</span>
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenDirectOrder(p)}
+                                    className="px-3 py-1.5 bg-slate-900 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors"
+                                  >
+                                    <ShoppingCart className="w-3 h-3" />
+                                    <span>Order (Create PO)</span>
+                                  </button>
+                                )}
+                              </>
+                            )}
                           </td>
                         </tr>
                       );
@@ -327,24 +417,32 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
         </>
       )}
 
-      {/* VIEW 2: Cashier Restock Requests Pipeline */}
+      {/* VIEW 2: Restock Requests Pipeline & Approval Queue */}
       {activeSubTab === 'requests' && (
         <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-sm text-slate-900">Submitted Restock Requests</h3>
+              <h3 className="font-bold text-sm text-slate-900">
+                {isAdminOrManager ? 'Restock Requests Pending Approval & Ordering' : 'Submitted Restock Requests'}
+              </h3>
               <p className="text-xs text-slate-500">
-                Cashier submissions awaiting manager review and supplier purchase order generation
+                {isAdminOrManager
+                  ? 'Click "Accept & Order (PO)" to immediately issue a supplier purchase order for requested products'
+                  : 'Cashier submissions awaiting manager review and supplier purchase order generation'}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => handleOpenRequest()}
-              className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-500 transition-colors inline-flex items-center gap-1.5"
-            >
-              <PackagePlus className="w-3.5 h-3.5" />
-              <span>New Request</span>
-            </button>
+
+            {/* Only cashiers create requests here */}
+            {isCashier && (
+              <button
+                type="button"
+                onClick={() => handleOpenCashierRequest()}
+                className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-500 transition-colors inline-flex items-center gap-1.5"
+              >
+                <PackagePlus className="w-3.5 h-3.5" />
+                <span>New Request</span>
+              </button>
+            )}
           </div>
 
           <div className="overflow-x-auto">
@@ -356,16 +454,18 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                   <th className="py-3 px-4">Product</th>
                   <th className="py-3 px-4 text-right">Requested Qty</th>
                   <th className="py-3 px-4 text-center">Urgency</th>
-                  <th className="py-3 px-4">Cashier Remarks</th>
+                  <th className="py-3 px-4">Remarks / Reason</th>
                   <th className="py-3 px-4 text-center">Status</th>
-                  <th className="py-3 px-4 text-right">Manager Action</th>
+                  <th className="py-3 px-4 text-right">
+                    {isAdminOrManager ? 'Decision & Order' : 'Review Status'}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {stockRequests.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="py-8 text-center text-slate-400 text-xs">
-                      No stock requests recorded. Cashiers can click &quot;Submit Stock Request&quot; above.
+                      No stock requests recorded.
                     </td>
                   </tr>
                 ) : (
@@ -414,7 +514,7 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                           </Badge>
                         ) : req.status === 'converted_to_po' ? (
                           <Badge variant="success" dot>
-                            Converted to PO
+                            Ordered (PO)
                           </Badge>
                         ) : (
                           <Badge variant="danger" dot>
@@ -423,29 +523,31 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                         )}
                       </td>
                       <td className="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
-                        {!isCashier ? (
+                        {/* ADMIN / MANAGER ACTIONS: Accept & Order or Reject */}
+                        {isAdminOrManager ? (
                           <>
                             {req.status === 'pending' && (
                               <>
                                 <button
                                   type="button"
-                                  onClick={() => handleOpenConvert(req)}
-                                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-bold shadow-2xs inline-flex items-center gap-1"
+                                  onClick={() => handleOpenAcceptAndOrder(req)}
+                                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1"
+                                  title="Approve request and create supplier PO"
                                 >
-                                  <ShoppingCart className="w-3 h-3" />
-                                  <span>Convert to PO</span>
+                                  <ShoppingCart className="w-3.5 h-3.5" />
+                                  <span>Accept & Order (PO)</span>
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateStatus(req.request_id, 'rejected')}
-                                  className="px-2 py-1 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded text-xs border border-slate-200"
+                                  className="px-2 py-1 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-lg text-xs border border-slate-200"
                                 >
                                   Reject
                                 </button>
                               </>
                             )}
                             {req.status === 'converted_to_po' && req.purchase_order && (
-                              <span className="text-xs font-mono font-bold text-emerald-700">
+                              <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-300">
                                 {req.purchase_order.po_number}
                               </span>
                             )}
@@ -466,125 +568,138 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
       )}
 
       {/* MODAL 1: Cashier Submit Stock Request Modal */}
-      <Modal
-        isOpen={isRequestModalOpen}
-        onClose={() => setIsRequestModalOpen(false)}
-        title="Submit Stock Restock Request"
-        subtitle="Notify Store Managers & Admins to reorder this product from suppliers"
-        maxWidth="md"
-        darkTheme={false}
-      >
-        <form onSubmit={handleSubmitStockRequest} className="space-y-4 text-xs text-slate-900">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Select Product to Restock *
-            </label>
-            <select
-              required
-              value={selectedProduct?.product_id || ''}
-              onChange={(e) => {
-                const prod = items.find((p) => p.product_id === parseInt(e.target.value));
-                if (prod) setSelectedProduct(prod);
-              }}
-              className="w-full px-3 py-2 text-sm border-2 border-slate-300 rounded-lg bg-white text-slate-900 outline-none font-medium"
-            >
-              {items.map((p) => (
-                <option key={p.product_id} value={p.product_id}>
-                  {p.name} (Current Stock: {p.stock_quantity} {p.unit})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Quantity to Request *"
-              type="number"
-              min="1"
-              step="1"
-              required
-              value={requestQty}
-              onChange={(e) => setRequestQty(e.target.value)}
-              placeholder="e.g. 24"
-            />
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Urgency Level *
-              </label>
-              <select
-                value={requestUrgency}
-                onChange={(e) => setRequestUrgency(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs border-2 border-slate-300 rounded-lg bg-white text-slate-900 outline-none font-bold"
-              >
-                <option value="normal">Normal (Routine restock)</option>
-                <option value="urgent">Urgent (Stock depleted today)</option>
-                <option value="critical">Critical (High-demand customer request)</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Cashier Remarks / Customer Demand Notes
-            </label>
-            <textarea
-              rows={2}
-              value={requestNotes}
-              onChange={(e) => setRequestNotes(e.target.value)}
-              placeholder="e.g. 5 customers asked for this item this morning; shelf completely empty"
-              className="w-full px-3 py-2 text-xs border-2 border-slate-300 rounded-lg outline-none font-medium"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsRequestModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="sm"
-              isLoading={isSubmittingRequest}
-              icon={<Send className="w-3.5 h-3.5" />}
-            >
-              Send Request to Manager
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* MODAL 2: Manager/Admin Convert Request to PO Modal */}
-      {selectedRequest && isConvertModalOpen && (
+      {isCashier && isRequestModalOpen && (
         <Modal
-          isOpen={isConvertModalOpen}
-          onClose={() => setIsConvertModalOpen(false)}
-          title="Generate Purchase Order from Request"
-          subtitle={`Converting Cashier Request #${selectedRequest.request_id} for ${selectedRequest.product?.name}`}
+          isOpen={isRequestModalOpen}
+          onClose={() => setIsRequestModalOpen(false)}
+          title="Submit Stock Restock Request"
+          subtitle="Notify Store Managers & Admins to reorder this product from suppliers"
           maxWidth="md"
           darkTheme={false}
         >
-          <form onSubmit={handleConvertPO} className="space-y-4 text-xs text-slate-900">
-            <div className="p-3 bg-slate-50 border-2 border-slate-200 rounded-xl space-y-1">
+          <form onSubmit={handleSubmitStockRequest} className="space-y-4 text-xs text-slate-900">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Select Product to Restock *
+              </label>
+              <select
+                required
+                value={selectedProduct?.product_id || ''}
+                onChange={(e) => {
+                  const prod = items.find((p) => p.product_id === parseInt(e.target.value));
+                  if (prod) setSelectedProduct(prod);
+                }}
+                className="w-full px-3 py-2 text-sm border-2 border-slate-300 rounded-lg bg-white text-slate-900 outline-none font-medium"
+              >
+                {items.map((p) => (
+                  <option key={p.product_id} value={p.product_id}>
+                    {p.name} (Current Stock: {p.stock_quantity} {p.unit})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label="Quantity to Request *"
+                type="number"
+                min="1"
+                step="1"
+                required
+                value={requestQty}
+                onChange={(e) => setRequestQty(e.target.value)}
+                placeholder="e.g. 24"
+              />
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Urgency Level *
+                </label>
+                <select
+                  value={requestUrgency}
+                  onChange={(e) => setRequestUrgency(e.target.value as any)}
+                  className="w-full px-3 py-2 text-xs border-2 border-slate-300 rounded-lg bg-white text-slate-900 outline-none font-bold"
+                >
+                  <option value="normal">Normal (Routine restock)</option>
+                  <option value="urgent">Urgent (Stock depleted today)</option>
+                  <option value="critical">Critical (High-demand customer request)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Cashier Remarks / Customer Demand Notes
+              </label>
+              <textarea
+                rows={2}
+                value={requestNotes}
+                onChange={(e) => setRequestNotes(e.target.value)}
+                placeholder="e.g. 5 customers asked for this item this morning; shelf completely empty"
+                className="w-full px-3 py-2 text-xs border-2 border-slate-300 rounded-lg outline-none font-medium"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsRequestModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                isLoading={isSubmittingRequest}
+                icon={<Send className="w-3.5 h-3.5" />}
+              >
+                Send Request to Manager
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* MODAL 2: Admin/Manager Accept Request & Create Supplier Purchase Order */}
+      {isAdminOrManager && isOrderModalOpen && orderProduct && (
+        <Modal
+          isOpen={isOrderModalOpen}
+          onClose={() => setIsOrderModalOpen(false)}
+          title={selectedRequest ? 'Accept Cashier Request & Order from Supplier' : 'Order Restock from Supplier (PO)'}
+          subtitle={
+            selectedRequest
+              ? `Converting Cashier Request #${selectedRequest.request_id} for ${orderProduct.name} into an official PO`
+              : `Generating Supplier Purchase Order for ${orderProduct.name}`
+          }
+          maxWidth="md"
+          darkTheme={false}
+        >
+          <form onSubmit={handleProcessOrderPO} className="space-y-4 text-xs text-slate-900">
+            <div className="p-3 bg-slate-50 border-2 border-slate-200 rounded-xl space-y-1.5">
               <div className="flex justify-between font-bold">
                 <span>Product:</span>
-                <span className="text-slate-900">{selectedRequest.product?.name}</span>
+                <span className="text-slate-900 font-black">{orderProduct.name}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Requested Quantity:</span>
-                <span className="font-black text-slate-900">
-                  {selectedRequest.requested_quantity} {selectedRequest.product?.unit}
-                </span>
+              <div className="flex justify-between text-slate-600">
+                <span>Current Stock on Shelf:</span>
+                <span className="font-bold text-amber-700">{orderProduct.stock_quantity} {orderProduct.unit}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Requested By:</span>
-                <span className="font-semibold">{selectedRequest.requester?.name}</span>
-              </div>
+              {selectedRequest && (
+                <>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Requested by Cashier:</span>
+                    <span className="font-semibold text-slate-800">{selectedRequest.requester?.name}</span>
+                  </div>
+                  {selectedRequest.notes && (
+                    <div className="p-2 bg-white rounded border border-slate-200 text-[11px] text-slate-600 italic">
+                      &quot;{selectedRequest.notes}&quot;
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             <div>
@@ -593,8 +708,8 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
               </label>
               <select
                 required
-                value={convertSupplierId}
-                onChange={(e) => setConvertSupplierId(e.target.value)}
+                value={orderSupplierId}
+                onChange={(e) => setOrderSupplierId(e.target.value)}
                 className="w-full px-3 py-2 text-xs border-2 border-slate-300 rounded-lg bg-white text-slate-900 outline-none font-bold"
               >
                 {suppliers.map((s) => (
@@ -605,23 +720,35 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
               </select>
             </div>
 
-            <Input
-              label="Supplier Wholesale Unit Cost (₱) *"
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              value={convertUnitCost}
-              onChange={(e) => setConvertUnitCost(e.target.value)}
-              placeholder="0.00"
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label="Order Quantity *"
+                type="number"
+                min="1"
+                step="1"
+                required
+                value={orderQuantity}
+                onChange={(e) => setOrderQuantity(e.target.value)}
+                placeholder="20"
+              />
+
+              <Input
+                label="Wholesale Unit Cost (₱) *"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                value={orderUnitCost}
+                onChange={(e) => setOrderUnitCost(e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
 
             <div className="p-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl flex justify-between font-black text-sm text-emerald-950">
               <span>Estimated Order Total:</span>
-              <span className="font-mono">
+              <span className="font-mono text-base text-emerald-800">
                 {formatPHP(
-                  (parseFloat(selectedRequest.requested_quantity.toString()) || 0) *
-                    (parseFloat(convertUnitCost) || 0)
+                  (parseFloat(orderQuantity) || 0) * (parseFloat(orderUnitCost) || 0)
                 )}
               </span>
             </div>
@@ -631,7 +758,7 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setIsConvertModalOpen(false)}
+                onClick={() => setIsOrderModalOpen(false)}
               >
                 Cancel
               </Button>
@@ -639,10 +766,10 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                 type="submit"
                 variant="emerald"
                 size="sm"
-                isLoading={isConverting}
+                isLoading={isOrdering}
                 icon={<ShoppingCart className="w-3.5 h-3.5" />}
               >
-                Create Supplier PO
+                {selectedRequest ? 'Accept & Create Supplier PO' : 'Create Supplier PO'}
               </Button>
             </div>
           </form>
