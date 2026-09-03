@@ -88,61 +88,37 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode }) 
   const info = getPageInfo();
 
   return (
-    <header
-      className={`h-16 px-6 border-b flex items-center justify-between transition-colors z-20 ${
-        activeTab === 'pos'
-          ? 'bg-slate-900 border-slate-800 text-slate-100'
-          : 'bg-white border-slate-200 text-slate-900 shadow-2xs'
-      }`}
-    >
+    <header className="h-16 px-6 border-b-2 border-slate-200 flex items-center justify-between bg-white text-slate-900 shadow-2xs z-20">
       <div className="flex items-center gap-3">
         <div>
           <h2
             className={`font-black tracking-tight leading-tight ${
-              isElderMode ? 'text-xl text-emerald-400' : 'text-lg text-slate-900'
-            } ${activeTab === 'pos' ? '!text-white' : ''}`}
+              isElderMode ? 'text-2xl text-emerald-700' : 'text-xl text-slate-900'
+            }`}
           >
             {info.title}
           </h2>
-          <p
-            className={`text-xs ${
-              activeTab === 'pos' ? 'text-slate-400' : 'text-slate-500'
-            }`}
-          >
-            {info.desc}
-          </p>
+          <p className="text-xs font-semibold text-slate-500">{info.desc}</p>
         </div>
       </div>
 
       {/* Right meta info */}
       <div className="flex items-center gap-4">
         {/* Branch pill */}
-        <div
-          className={`hidden sm:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${
-            activeTab === 'pos'
-              ? 'bg-slate-800 border-slate-700 text-slate-300'
-              : 'bg-slate-50 border-slate-200 text-slate-700'
-          }`}
-        >
+        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border-2 border-slate-200 bg-slate-50 text-slate-800 shadow-2xs">
           <img
             src="/logo.png"
             alt="Daumar"
-            className="w-5 h-5 rounded-full object-cover bg-white shrink-0"
+            className="w-5 h-5 rounded-full object-cover bg-white shrink-0 border border-slate-300"
           />
-          <span className="font-bold">{store?.store_name || 'Daumar Grocery Store'}</span>
+          <span className="font-black text-slate-900">{store?.store_name || 'Daumar Grocery Store'}</span>
           <span className="text-slate-400">•</span>
-          <span className="font-mono text-[11px]">TIN: {store?.vat_tin || '123-456-789'}</span>
+          <span className="font-mono text-[11px] text-slate-600">TIN: {store?.vat_tin || '123-456-789'}</span>
         </div>
 
         {/* Live Philippine Clock */}
-        <div
-          className={`flex items-center gap-2 font-mono text-xs font-bold px-3 py-1.5 rounded-lg border ${
-            activeTab === 'pos'
-              ? 'bg-slate-950 border-slate-800 text-emerald-400'
-              : 'bg-slate-50 border-slate-200 text-slate-800'
-          }`}
-        >
-          <Clock className="w-4 h-4 text-emerald-500 shrink-0" />
+        <div className="flex items-center gap-2 font-mono text-xs font-black px-3.5 py-1.5 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-900 shadow-2xs">
+          <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>
             {dateString} — {timeString}
           </span>

@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
-  Sparkles,
 } from 'lucide-react';
 
 export interface POSTerminalProps {
@@ -251,18 +250,18 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
 
   return (
     <div
-      className={`flex-1 flex flex-col md:flex-row h-full overflow-hidden bg-slate-950 text-slate-100 select-none ${
+      className={`flex-1 flex flex-col md:flex-row h-full overflow-hidden bg-slate-100 text-slate-900 select-none ${
         isElderMode ? 'text-base' : 'text-sm'
       }`}
     >
-      {/* LEFT SECTION: Catalog & Fast Touch Controls */}
-      <div className="flex-1 flex flex-col h-full border-r border-slate-800 overflow-hidden">
-        {/* Top Control Bar: Large Barcode Scanner & Search */}
-        <div className="p-4 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center gap-3">
+      {/* LEFT SECTION: Catalog & Fast Touch Controls (BRIGHT MODE) */}
+      <div className="flex-1 flex flex-col h-full border-r-2 border-slate-200 overflow-hidden">
+        {/* Top Control Bar: Crisp White Barcode & Search */}
+        <div className="p-4 bg-white border-b-2 border-slate-200 flex flex-wrap items-center gap-3 shadow-xs">
           {/* Barcode Scan Form */}
           <form onSubmit={handleBarcodeSubmit} className="flex-1 min-w-[280px]">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-600">
                 <Barcode className="w-6 h-6" />
               </div>
               <input
@@ -271,7 +270,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
                 value={barcodeInput}
                 onChange={(e) => setBarcodeInput(e.target.value)}
                 placeholder="Scan Barcode / Enter SKU (Press Enter)..."
-                className={`w-full pl-12 pr-4 bg-slate-950 border border-slate-700 rounded-xl font-mono text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all ${
+                className={`w-full pl-12 pr-4 bg-slate-50 border-2 border-slate-300 rounded-xl font-mono text-slate-900 placeholder-slate-500 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all ${
                   isElderMode ? 'py-3 text-lg' : 'py-2.5 text-base'
                 }`}
               />
@@ -280,7 +279,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
 
           {/* Text Search Input */}
           <div className="w-72 relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
               <Search className="w-5 h-5" />
             </div>
             <input
@@ -288,7 +287,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search product..."
-              className={`w-full pl-11 pr-4 bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all ${
+              className={`w-full pl-11 pr-4 bg-slate-50 border-2 border-slate-300 rounded-xl text-slate-900 placeholder-slate-500 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all ${
                 isElderMode ? 'py-3 text-base' : 'py-2.5 text-sm'
               }`}
             />
@@ -297,10 +296,10 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
           <button
             type="button"
             onClick={fetchData}
-            className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl border border-slate-700 transition-colors flex items-center gap-1.5 font-bold text-xs"
+            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl border-2 border-slate-300 transition-colors flex items-center gap-1.5 font-bold text-xs shadow-xs"
             title="Sync Database Catalog"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-4 h-4 text-emerald-600" />
             <span>Sync</span>
           </button>
         </div>
@@ -308,32 +307,32 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
         {/* Live Notification Banner */}
         {scanMessage && (
           <div
-            className={`px-5 py-2.5 font-bold flex items-center gap-3 border-b animate-in fade-in duration-150 ${
+            className={`px-5 py-3 font-black flex items-center gap-3 border-b-2 animate-in fade-in duration-150 ${
               scanMessage.isError
-                ? 'bg-rose-950 text-rose-200 border-rose-800 text-sm'
-                : 'bg-emerald-950 text-emerald-200 border-emerald-800 text-sm'
+                ? 'bg-rose-100 text-rose-900 border-rose-300 text-sm'
+                : 'bg-emerald-100 text-emerald-950 border-emerald-300 text-sm'
             }`}
           >
             {scanMessage.isError ? (
-              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+              <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
             ) : (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             )}
             <span>{scanMessage.text}</span>
           </div>
         )}
 
-        {/* Category Pills with Large Touch Targets */}
-        <div className="px-4 py-3 bg-slate-900/90 border-b border-slate-800 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        {/* Category Pills with Bright High-Contrast Styling */}
+        <div className="px-4 py-3 bg-white border-b-2 border-slate-200 flex items-center gap-2 overflow-x-auto no-scrollbar shadow-2xs">
           <button
             type="button"
             onClick={() => setSelectedCategory(null)}
-            className={`rounded-xl font-bold whitespace-nowrap transition-all ${
+            className={`rounded-xl font-bold whitespace-nowrap transition-all border ${
               isElderMode ? 'px-4 py-2.5 text-sm' : 'px-3.5 py-2 text-xs'
             } ${
               selectedCategory === null
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-700/30 ring-2 ring-emerald-400'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-700/30 border-emerald-600 ring-2 ring-emerald-400'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
             }`}
           >
             All Items ({products.length})
@@ -343,12 +342,12 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
               key={cat.category_id}
               type="button"
               onClick={() => setSelectedCategory(cat.category_id)}
-              className={`rounded-xl font-bold whitespace-nowrap transition-all ${
+              className={`rounded-xl font-bold whitespace-nowrap transition-all border ${
                 isElderMode ? 'px-4 py-2.5 text-sm' : 'px-3.5 py-2 text-xs'
               } ${
                 selectedCategory === cat.category_id
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-700/30 ring-2 ring-emerald-400'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-700/30 border-emerald-600 ring-2 ring-emerald-400'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
               }`}
             >
               {cat.name}
@@ -356,17 +355,17 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
           ))}
         </div>
 
-        {/* Product Cards Grid with Elder-Friendly Sizing */}
-        <div className="flex-1 p-4 overflow-y-auto">
+        {/* Product Cards Grid — Crisp Bright White with High-Contrast Text */}
+        <div className="flex-1 p-4 overflow-y-auto bg-slate-100">
           {isLoading ? (
-            <div className="h-full flex items-center justify-center text-slate-400 font-medium">
-              Loading POS products...
+            <div className="h-full flex items-center justify-center text-slate-500 font-bold text-base">
+              Loading Daumar Grocery products...
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center p-6">
-              <ShoppingBag className="w-14 h-14 mb-3 text-slate-600" />
-              <p className="font-bold text-lg">No matching products found</p>
-              <p className="text-xs text-slate-500 mt-1">Try searching with another keyword or category.</p>
+            <div className="h-full flex flex-col items-center justify-center text-slate-500 text-center p-6">
+              <ShoppingBag className="w-16 h-16 mb-3 text-slate-400" />
+              <p className="font-bold text-lg text-slate-800">No matching products found</p>
+              <p className="text-sm text-slate-500 mt-1">Try searching with another keyword or category.</p>
             </div>
           ) : (
             <div
@@ -386,35 +385,35 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
                   <div
                     key={product.product_id}
                     onClick={() => !isOutOfStock && addToCart(product)}
-                    className={`rounded-xl border flex flex-col justify-between transition-all select-none ${
+                    className={`rounded-xl border-2 flex flex-col justify-between transition-all select-none ${
                       isElderMode ? 'p-4 min-h-[140px]' : 'p-3.5 min-h-[120px]'
                     } ${
                       isOutOfStock
-                        ? 'bg-slate-900/40 border-slate-800 opacity-50 cursor-not-allowed'
-                        : 'bg-slate-900 border-slate-800 hover:border-emerald-500 hover:bg-slate-850 cursor-pointer active:scale-97 shadow-md'
+                        ? 'bg-slate-200/70 border-slate-300 opacity-60 cursor-not-allowed'
+                        : 'bg-white border-slate-200 hover:border-emerald-600 hover:shadow-xl cursor-pointer active:scale-97 shadow-xs'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between gap-1 mb-1.5">
-                        <span className="text-xs font-mono text-slate-400 truncate">
+                        <span className="text-xs font-mono font-bold text-slate-500 truncate">
                           {product.sku}
                         </span>
                         {isOutOfStock ? (
-                          <span className="px-2 py-0.5 rounded text-[11px] font-black bg-rose-950 text-rose-300 border border-rose-800">
+                          <span className="px-2 py-0.5 rounded text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300">
                             OUT OF STOCK
                           </span>
                         ) : isLowStock ? (
-                          <span className="px-2 py-0.5 rounded text-[11px] font-black bg-amber-950 text-amber-300 border border-amber-800">
+                          <span className="px-2 py-0.5 rounded text-[11px] font-black bg-amber-100 text-amber-900 border border-amber-300">
                             LOW: {stock}
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                             {stock} {product.unit}
                           </span>
                         )}
                       </div>
                       <h4
-                        className={`font-bold text-white line-clamp-2 leading-tight ${
+                        className={`font-black text-slate-900 line-clamp-2 leading-tight ${
                           isElderMode ? 'text-base' : 'text-sm'
                         }`}
                       >
@@ -422,15 +421,15 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
                       </h4>
                     </div>
 
-                    <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between">
+                    <div className="mt-3 pt-2.5 border-t-2 border-slate-100 flex items-center justify-between">
                       <span
-                        className={`font-black text-emerald-400 font-mono ${
-                          isElderMode ? 'text-xl' : 'text-lg'
+                        className={`font-black text-emerald-700 font-mono ${
+                          isElderMode ? 'text-2xl' : 'text-xl'
                         }`}
                       >
                         {formatPHP(product.selling_price)}
                       </span>
-                      <span className="text-xs text-slate-400 font-mono bg-slate-800 px-2 py-0.5 rounded">
+                      <span className="text-xs text-slate-500 font-mono bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                         {product.barcode}
                       </span>
                     </div>
@@ -442,21 +441,21 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
         </div>
       </div>
 
-      {/* RIGHT SECTION: Active Cart & Large Checkout Controls */}
+      {/* RIGHT SECTION: Bright Active Cart & Checkout Panel */}
       <div
-        className={`bg-slate-900 flex flex-col h-full border-l border-slate-800 shadow-2xl ${
+        className={`bg-white flex flex-col h-full border-l-2 border-slate-200 shadow-2xl ${
           isElderMode ? 'w-full md:w-[420px] lg:w-[460px]' : 'w-full md:w-[380px] lg:w-[410px]'
         }`}
       >
         {/* Cart Header */}
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+        <div className="px-5 py-4 border-b-2 border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold">
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-sm">
               <ShoppingBag className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-white">Active Order Cart</h3>
-              <p className="text-xs text-slate-400">
+              <h3 className="font-black text-base text-slate-900">Active Order Cart</h3>
+              <p className="text-xs font-semibold text-slate-500">
                 {cart.reduce((s, i) => s + i.quantity, 0)} items selected
               </p>
             </div>
@@ -465,7 +464,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
             <button
               type="button"
               onClick={clearCart}
-              className="px-2.5 py-1 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 rounded-lg transition-colors flex items-center gap-1 border border-rose-900/40"
+              className="px-2.5 py-1 text-xs font-bold text-rose-700 hover:text-rose-800 hover:bg-rose-100 rounded-lg transition-colors flex items-center gap-1 border border-rose-300"
             >
               <Trash2 className="w-4 h-4" />
               Clear Cart
@@ -473,63 +472,63 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
           )}
         </div>
 
-        {/* Cart Line Items with Large Touch Steppers */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-2.5">
+        {/* Cart Line Items with High-Contrast Steppers */}
+        <div className="flex-1 p-4 overflow-y-auto space-y-2.5 bg-slate-50/50">
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center p-6">
-              <ShoppingBag className="w-12 h-12 mb-3 text-slate-600" />
-              <p className="font-bold text-base text-slate-300">Cart is empty</p>
+              <ShoppingBag className="w-14 h-14 mb-3 text-slate-300" />
+              <p className="font-black text-base text-slate-700">Cart is empty</p>
               <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
-                Click items on the left catalog or scan a barcode to begin checkout.
+                Click items on the left or scan barcodes with your barcode gun to begin.
               </p>
             </div>
           ) : (
             cart.map((item) => (
               <div
                 key={item.product_id}
-                className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3 shadow-sm"
+                className="p-3.5 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-between gap-3 shadow-xs"
               >
                 <div className="flex-1 min-w-0">
-                  <h5 className="font-bold text-white text-sm truncate leading-snug">
+                  <h5 className="font-black text-slate-900 text-sm truncate leading-snug">
                     {item.product_name}
                   </h5>
-                  <div className="text-xs text-emerald-400 font-mono mt-0.5 font-bold">
+                  <div className="text-xs text-emerald-700 font-mono mt-0.5 font-bold">
                     {formatPHP(item.unit_price)} each
                   </div>
                 </div>
 
-                {/* Elder-Friendly Large Stepper (+ / -) */}
+                {/* Bright Elder-Friendly Steppers */}
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center border-2 border-slate-700 rounded-lg bg-slate-900 overflow-hidden shadow-xs">
+                  <div className="flex items-center border-2 border-slate-300 rounded-lg bg-white overflow-hidden shadow-2xs">
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.product_id, -1)}
-                      className="w-9 h-9 flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-white font-black text-lg transition-colors active:scale-95"
+                      className="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-lg transition-colors active:scale-95"
                       title="Decrease Quantity"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-9 text-center font-black text-white text-sm font-mono">
+                    <span className="w-9 text-center font-black text-slate-900 text-sm font-mono">
                       {item.quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.product_id, 1)}
-                      className="w-9 h-9 flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-white font-black text-lg transition-colors active:scale-95"
+                      className="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-lg transition-colors active:scale-95"
                       title="Increase Quantity"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <span className="font-black text-white text-sm w-20 text-right font-mono">
+                  <span className="font-black text-slate-950 text-base w-20 text-right font-mono">
                     {formatPHP(item.total)}
                   </span>
 
                   <button
                     type="button"
                     onClick={() => removeFromCart(item.product_id)}
-                    className="p-2 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-rose-950/30 transition-colors"
+                    className="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
                     title="Remove item"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -540,13 +539,13 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
           )}
         </div>
 
-        {/* Elder-Friendly Senior Citizen / PWD 20% Discount Section */}
-        <div className="p-4 bg-slate-950 border-t border-slate-800 space-y-3">
+        {/* Bright Senior Citizen / PWD 20% Discount Section */}
+        <div className="p-4 bg-white border-t-2 border-slate-200 space-y-3">
           <div
-            className={`p-3 rounded-xl border transition-all ${
+            className={`p-3 rounded-xl border-2 transition-all ${
               isSeniorPwd
-                ? 'bg-amber-950/40 border-amber-500 shadow-sm shadow-amber-500/20'
-                : 'bg-slate-900 border-slate-800'
+                ? 'bg-amber-50 border-amber-400 shadow-sm'
+                : 'bg-slate-50 border-slate-200'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -557,17 +556,17 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                     isSeniorPwd
-                      ? 'bg-amber-500 text-slate-950 font-bold'
-                      : 'bg-slate-800 text-slate-400'
+                      ? 'bg-amber-500 text-white font-bold'
+                      : 'bg-slate-200 text-slate-600'
                   }`}
                 >
                   <UserCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="font-black text-sm block text-white">
+                  <span className="font-black text-sm block text-slate-900">
                     Senior Citizen / PWD (20% Off)
                   </span>
-                  <span className="text-[11px] text-amber-400 font-medium">
+                  <span className="text-xs text-amber-700 font-bold">
                     12% VAT Exemption (RA 9994 / RA 10754)
                   </span>
                 </div>
@@ -580,31 +579,31 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
                   setIsSeniorPwd(e.target.checked);
                   if (e.target.checked) setCustomDiscountType('none');
                 }}
-                className="w-6 h-6 accent-amber-500 rounded cursor-pointer"
+                className="w-6 h-6 accent-amber-600 rounded cursor-pointer"
               />
             </div>
 
             {isSeniorPwd && (
-              <div className="mt-2.5 pt-2.5 border-t border-amber-900/60">
+              <div className="mt-2.5 pt-2.5 border-t border-amber-200">
                 <input
                   type="text"
                   value={seniorPwdId}
                   onChange={(e) => setSeniorPwdId(e.target.value)}
                   placeholder="Enter OSCA ID / PWD Booklet Number *"
-                  className="w-full px-3 py-2 bg-slate-900 border border-amber-500/60 rounded-lg text-sm text-amber-200 placeholder-slate-500 outline-none font-mono"
+                  className="w-full px-3 py-2 bg-white border-2 border-amber-400 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none font-mono font-bold"
                 />
               </div>
             )}
           </div>
 
-          {/* Standard discount selector */}
+          {/* Other discount */}
           {!isSeniorPwd && (
             <div className="flex items-center gap-2 text-xs">
-              <span className="font-semibold text-slate-400">Other Discount:</span>
+              <span className="font-bold text-slate-600">Other Discount:</span>
               <select
                 value={customDiscountType}
                 onChange={(e) => setCustomDiscountType(e.target.value as any)}
-                className="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none"
+                className="bg-slate-50 border-2 border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs outline-none font-medium"
               >
                 <option value="none">None</option>
                 <option value="percentage">Percentage (%)</option>
@@ -617,23 +616,23 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
                   value={customDiscountValue}
                   onChange={(e) => setCustomDiscountValue(parseFloat(e.target.value) || 0)}
                   placeholder="Value"
-                  className="w-24 bg-slate-900 border border-slate-700 text-white rounded-lg px-2.5 py-1.5 text-xs outline-none font-mono font-bold"
+                  className="w-24 bg-white border-2 border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs outline-none font-mono font-bold"
                 />
               )}
             </div>
           )}
         </div>
 
-        {/* Financial Summary & Giant Pay Button */}
-        <div className="p-4 bg-slate-950 border-t border-slate-800 space-y-3">
-          <div className="space-y-1.5 text-xs text-slate-400">
+        {/* Bright Financial Summary & Big Pay Button */}
+        <div className="p-4 bg-slate-50 border-t-2 border-slate-200 space-y-3">
+          <div className="space-y-1.5 text-xs text-slate-600">
             <div className="flex justify-between text-sm">
-              <span>Gross Subtotal:</span>
-              <span className="text-slate-200 font-mono font-bold">{formatPHP(rawSubtotal)}</span>
+              <span className="font-bold">Gross Subtotal:</span>
+              <span className="text-slate-900 font-mono font-black">{formatPHP(rawSubtotal)}</span>
             </div>
 
             {discountAmount > 0 && (
-              <div className="flex justify-between text-sm text-amber-400 font-bold">
+              <div className="flex justify-between text-sm text-amber-800 font-bold">
                 <span>
                   {isSeniorPwd ? 'Senior 20% + VAT Exemption:' : 'Discount Benefit:'}
                 </span>
@@ -641,21 +640,21 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
               </div>
             )}
 
-            <div className="flex justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-800">
-              <span>VATable Sales (12%): {formatPHP(vatableSales)}</span>
+            <div className="flex justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200">
+              <span>VATable (12%): {formatPHP(vatableSales)}</span>
               <span>12% VAT: {formatPHP(vatAmount)}</span>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-800">
+          <div className="pt-2 border-t-2 border-slate-200">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
                   Total Payable
                 </span>
                 <span
-                  className={`font-black text-white font-mono leading-none ${
-                    isElderMode ? 'text-3xl text-emerald-400' : 'text-2xl'
+                  className={`font-black text-slate-950 font-mono leading-none ${
+                    isElderMode ? 'text-4xl text-emerald-700' : 'text-3xl text-emerald-700'
                   }`}
                 >
                   {formatPHP(totalDue)}
@@ -663,8 +662,8 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
               </div>
 
               {cart.length > 0 && (
-                <span className="text-xs text-emerald-400 font-bold bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-800">
-                  Ready to Pay
+                <span className="text-xs text-emerald-800 font-bold bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
+                  Ready to Tender
                 </span>
               )}
             </div>
@@ -674,7 +673,7 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
               size="lg"
               disabled={cart.length === 0}
               onClick={() => setIsPaymentModalOpen(true)}
-              className="w-full h-14 text-base font-black tracking-wide rounded-xl shadow-xl shadow-emerald-600/30 active:scale-98 transition-transform"
+              className="w-full h-14 text-lg font-black tracking-wide rounded-xl shadow-xl shadow-emerald-600/25 active:scale-98 transition-transform"
             >
               PAY & TENDER (₱)
             </Button>
