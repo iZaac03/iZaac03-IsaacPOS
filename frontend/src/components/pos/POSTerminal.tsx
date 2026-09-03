@@ -4,6 +4,7 @@ import { api } from '../../api/client';
 import { formatPHP } from '../../utils/format';
 import { SplitPaymentModal } from './SplitPaymentModal';
 import { ThermalReceipt } from './ThermalReceipt';
+import { CameraScannerModal } from './CameraScannerModal';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import {
@@ -18,6 +19,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
+  Camera,
 } from 'lucide-react';
 
 export interface POSTerminalProps {
@@ -41,10 +43,48 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
   const [customDiscountType, setCustomDiscountType] = useState<'none' | 'percentage' | 'fixed'>('none');
   const [customDiscountValue, setCustomDiscountValue] = useState<number>(0);
 
+// Web Audio API beep synthesizer for supermarket barcode scanner
+const playScanBeep = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1400, audioCtx.currentTime); // Crisp supermarket register beep
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.12);
+  } catch (e) {
+    // Audio restricted
+  }
+};
+
+const playErrorBuzz = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(240, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.22);
+  } catch (e) {
+    // Audio restricted
+  }
+};
+
   // Modals state
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState<boolean>(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [isCameraScannerOpen, setIsCameraScannerOpen] = useState<boolean>(false);
 
   const barcodeInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,24 +109,102 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
     barcodeInputRef.current?.focus();
   }, []);
 
+  const processScannedCode = async (rawCode: string) => {
+    const code = rawCode.trim();
+    if (!code) return;
+
+    // 1. Instant in-memory check (0ms response)
+    const localMatch = products.find(
+      (p) => p.barcode === code || p.sku.toLowerCase() === code.toLowerCase()
+    );
+
+    if (localMatch) {
+      const stock = parseFloat(localMatch.stock_quantity.toString());
+      if (stock <= 0) {
+        playErrorBuzz();
+        setScanMessage({ text: `'${localMatch.name}' is out of stock!`, isError: true });
+        setTimeout(() => setScanMessage(null), 3500);
+        return;
+      }
+      playScanBeep();
+      addToCart(localMatch);
+      setScanMessage({ text: `Scanned: ${localMatch.name} (${formatPHP(localMatch.selling_price)})` });
+      setTimeout(() => setScanMessage(null), 3500);
+      return;
+    }
+
+    // 2. Database backend lookup fallback
+    try {
+      const res = await api.get('/products/scan', { params: { code } });
+      if (res.data.found && res.data.product) {
+        const prod = res.data.product;
+        const stock = parseFloat(prod.stock_quantity.toString());
+        if (stock <= 0) {
+          playErrorBuzz();
+          setScanMessage({ text: `'${prod.name}' is out of stock!`, isError: true });
+          setTimeout(() => setScanMessage(null), 3500);
+          return;
+        }
+        playScanBeep();
+        addToCart(prod);
+        setScanMessage({ text: `Scanned: ${prod.name} (${formatPHP(prod.selling_price)})` });
+      }
+    } catch {
+      playErrorBuzz();
+      setScanMessage({ text: `Barcode '${code}' not found in catalog`, isError: true });
+    } finally {
+      setTimeout(() => setScanMessage(null), 3500);
+      barcodeInputRef.current?.focus();
+    }
+  };
+
+  // Global hardware barcode scanner gun listener (USB / Bluetooth)
+  useEffect(() => {
+    let buffer = '';
+    let lastTime = Date.now();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      // Do not intercept if user is typing in notes or other inputs
+      if (
+        isPaymentModalOpen ||
+        isCameraScannerOpen ||
+        (target &&
+          (target.tagName === 'TEXTAREA' ||
+            (target.tagName === 'INPUT' && target !== barcodeInputRef.current)))
+      ) {
+        return;
+      }
+
+      const now = Date.now();
+      const diff = now - lastTime;
+      lastTime = now;
+
+      if (e.key === 'Enter') {
+        if (buffer.length >= 3) {
+          e.preventDefault();
+          processScannedCode(buffer);
+          buffer = '';
+        }
+      } else if (e.key.length === 1) {
+        // Hardware barcode scanners send keys very rapidly (< 60ms)
+        if (diff > 120) {
+          buffer = '';
+        }
+        buffer += e.key;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [products, isPaymentModalOpen, isCameraScannerOpen]);
+
   const handleBarcodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = barcodeInput.trim();
     if (!code) return;
-
-    try {
-      const res = await api.get('/products/scan', { params: { code } });
-      if (res.data.found && res.data.product) {
-        addToCart(res.data.product);
-        setScanMessage({ text: `Added to cart: ${res.data.product.name}` });
-      }
-    } catch {
-      setScanMessage({ text: `Barcode '${code}' not found in catalog`, isError: true });
-    } finally {
-      setBarcodeInput('');
-      setTimeout(() => setScanMessage(null), 3500);
-      barcodeInputRef.current?.focus();
-    }
+    setBarcodeInput('');
+    await processScannedCode(code);
   };
 
   const addToCart = (product: Product) => {
@@ -328,6 +446,17 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
               }`}
             />
           </div>
+
+          {/* Camera Scanner Button */}
+          <button
+            type="button"
+            onClick={() => setIsCameraScannerOpen(true)}
+            className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl border-2 border-emerald-600 transition-all flex items-center gap-1.5 font-bold text-xs shadow-md shadow-emerald-700/20 active:scale-95 shrink-0"
+            title="Open Camera / Webcam Barcode Scanner"
+          >
+            <Camera className="w-4 h-4" />
+            <span className="hidden sm:inline">Camera Scan</span>
+          </button>
 
           <button
             type="button"
@@ -752,6 +881,16 @@ export const POSTerminal: React.FC<POSTerminalProps> = ({ isElderMode = false })
         <ThermalReceipt
           order={completedOrder}
           onClose={() => setCompletedOrder(null)}
+        />
+      )}
+
+      {/* Camera Live Barcode Scanner Modal */}
+      {isCameraScannerOpen && (
+        <CameraScannerModal
+          isOpen={isCameraScannerOpen}
+          onClose={() => setIsCameraScannerOpen(false)}
+          onScanSuccess={(code) => processScannedCode(code)}
+          sampleProducts={products}
         />
       )}
     </div>
