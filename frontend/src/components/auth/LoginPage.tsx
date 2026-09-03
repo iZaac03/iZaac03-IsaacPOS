@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { Lock, Mail, Delete } from 'lucide-react';
+import { Lock, Mail, Delete, Eye, EyeOff, Shield, UserCheck, User } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login, loginWithPin } = useAuth();
@@ -10,6 +10,7 @@ export const LoginPage: React.FC = () => {
   const [authMode, setAuthMode] = useState<'password' | 'pin'>('password');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [pinCode, setPinCode] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -29,11 +30,18 @@ export const LoginPage: React.FC = () => {
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
+          err.response?.data?.errors?.email?.[0] ||
           'Invalid credentials. Please verify your email and password.'
       );
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fillCredentials = (userEmail: string, userPass: string) => {
+    setEmail(userEmail);
+    setPassword(userPass);
+    setError('');
   };
 
   // Manual PIN Submit
@@ -154,7 +162,7 @@ export const LoginPage: React.FC = () => {
 
               <Input
                 label="Account Password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 autoComplete="current-password"
                 value={password}
@@ -162,6 +170,20 @@ export const LoginPage: React.FC = () => {
                 placeholder="Enter password"
                 darkTheme={true}
                 icon={<Lock className="w-4 h-4" />}
+                rightElement={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-slate-400 hover:text-white transition-colors p-1"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                }
               />
 
               <Button
@@ -173,6 +195,53 @@ export const LoginPage: React.FC = () => {
               >
                 Sign In to POS Register
               </Button>
+
+              {/* 1-Click Quick Fill Credentials */}
+              <div className="pt-3 border-t border-slate-800/80 space-y-2">
+                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <span className="font-semibold text-slate-300">Quick-fill Demo Accounts:</span>
+                  <span className="font-mono text-emerald-400 text-[10px] bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50">
+                    pwd: password123
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fillCredentials('cashier@isaacpos.ph', 'password123')}
+                    className="p-2 bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-lg text-left text-xs transition-colors flex items-center gap-2 group"
+                  >
+                    <div className="w-6 h-6 rounded bg-emerald-900/50 text-emerald-400 flex items-center justify-center shrink-0">
+                      <UserCheck className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-bold text-white block text-[11px] group-hover:text-emerald-300">
+                        Cashier
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono truncate block">
+                        cashier@...
+                      </span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => fillCredentials('admin@isaacpos.ph', 'password123')}
+                    className="p-2 bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-lg text-left text-xs transition-colors flex items-center gap-2 group"
+                  >
+                    <div className="w-6 h-6 rounded bg-purple-900/50 text-purple-400 flex items-center justify-center shrink-0">
+                      <Shield className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-bold text-white block text-[11px] group-hover:text-purple-300">
+                        Admin
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono truncate block">
+                        admin@...
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              </div>
             </form>
           )}
 

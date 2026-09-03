@@ -5,6 +5,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   helperText?: string;
   icon?: React.ReactNode;
+  rightElement?: React.ReactNode;
   darkTheme?: boolean;
 }
 
@@ -15,6 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       error,
       helperText,
       icon,
+      rightElement,
       darkTheme = false,
       className = '',
       id,
@@ -46,7 +48,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={`block w-full rounded-md border text-sm transition-colors py-2 ${
-              icon ? 'pl-9 pr-3' : 'px-3'
+              icon ? 'pl-9' : 'pl-3'
+            } ${
+              rightElement ? 'pr-9' : 'pr-3'
             } ${
               darkTheme
                 ? 'bg-slate-950 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
@@ -58,6 +62,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             } ${className}`}
             {...props}
           />
+          {rightElement && (
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              {rightElement}
+            </div>
+          )}
         </div>
         {error ? (
           <p className="mt-1 text-xs text-rose-500">{error}</p>
