@@ -242,12 +242,12 @@ export const TransactionsView: React.FC = () => {
                     <td className="py-3 px-4 text-right font-mono text-slate-500">
                       {formatPHP(ord.subtotal)}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-rose-600">
+                    <td className="py-3 px-4 text-right font-mono text-rose-600 tabular-nums">
                       {parseFloat(ord.discount_amount.toString()) > 0
                         ? `-${formatPHP(ord.discount_amount)}`
-                        : '—'}
+                        : '-'}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 tabular-nums">
                       {formatPHP(ord.total_amount)}
                     </td>
                     <td className="py-3 px-4 text-center">
@@ -309,7 +309,7 @@ export const TransactionsView: React.FC = () => {
         <Modal
           isOpen={true}
           onClose={() => setRefundOrder(null)}
-          title={`Process Return & Refund — ${refundOrder.order_number}`}
+          title={`Process Return & Refund: ${refundOrder.order_number}`}
           subtitle="Select line items to return. Restocked items are returned to active inventory."
           maxWidth="lg"
         >

@@ -57,9 +57,9 @@ export const AppContent: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 text-xs font-mono">
-        <div className="w-10 h-10 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mb-3" />
-        <span className="text-sm font-bold tracking-wider">INITIALIZING ISAACPOS WORKSPACE...</span>
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-slate-400 text-xs font-mono">
+        <div className="w-8 h-8 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin mb-3" />
+        <span className="text-xs font-bold tracking-wider text-slate-300">Loading register...</span>
       </div>
     );
   }

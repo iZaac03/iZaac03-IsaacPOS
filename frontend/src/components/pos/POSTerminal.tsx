@@ -386,14 +386,14 @@ const playErrorBuzz = () => {
         isElderMode ? 'text-base' : 'text-sm'
       }`}
     >
-      {/* Mobile-Only View Switcher (Tabs for Catalog vs Cart on small screens) */}
-      <div className="md:hidden px-4 py-2.5 bg-white border-b-2 border-slate-200 flex items-center gap-2 z-10 shrink-0">
+      {/* Mobile-Only View Switcher */}
+      <div className="md:hidden px-4 py-2 bg-white border-b border-slate-200 flex items-center gap-2 z-10 shrink-0">
         <button
           type="button"
           onClick={() => setMobileView('catalog')}
-          className={`flex-1 py-2 rounded-xl font-black text-xs transition-all ${
+          className={`flex-1 py-2 rounded-md font-bold text-xs transition-colors cursor-pointer ${
             mobileView === 'catalog'
-              ? 'bg-emerald-600 text-white shadow-xs'
+              ? 'bg-emerald-700 text-white'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -402,43 +402,43 @@ const playErrorBuzz = () => {
         <button
           type="button"
           onClick={() => setMobileView('cart')}
-          className={`flex-1 py-2 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 rounded-md font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
             mobileView === 'cart'
-              ? 'bg-emerald-600 text-white shadow-xs'
+              ? 'bg-emerald-700 text-white'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
           <span>Order Cart ({cart.reduce((s, i) => s + i.quantity, 0)})</span>
           {cart.length > 0 && (
-            <span className="px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-900 font-mono text-[10px]">
+            <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 font-mono text-[10px] font-bold tabular-nums">
               {formatPHP(totalDue)}
             </span>
           )}
         </button>
       </div>
 
-      {/* LEFT SECTION: Catalog & Fast Touch Controls (BRIGHT MODE) */}
+      {/* LEFT SECTION: Catalog & Fast Touch Controls */}
       <div
-        className={`flex-1 flex flex-col h-full border-r-2 border-slate-200 overflow-hidden ${
+        className={`flex-1 flex flex-col h-full border-r border-slate-200 overflow-hidden ${
           mobileView === 'cart' ? 'hidden md:flex' : 'flex'
         }`}
       >
-        {/* Top Control Bar: Crisp White Barcode & Search */}
-        <div className="p-3 sm:p-4 bg-white border-b-2 border-slate-200 flex flex-wrap items-center gap-2.5 sm:gap-3 shadow-xs">
+        {/* Top Control Bar: Barcode & Search */}
+        <div className="p-3 bg-white border-b border-slate-200 flex flex-wrap items-center gap-2.5">
           {/* Barcode Scan Form */}
           <form onSubmit={handleBarcodeSubmit} className="flex-1 min-w-[220px]">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-600">
-                <Barcode className="w-6 h-6" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <Barcode className="w-5 h-5" />
               </div>
               <input
                 ref={barcodeInputRef}
                 type="text"
                 value={barcodeInput}
                 onChange={(e) => setBarcodeInput(e.target.value)}
-                placeholder="Scan Barcode / Enter SKU (Press Enter)..."
-                className={`w-full pl-12 pr-4 bg-slate-50 border-2 border-slate-300 rounded-xl font-mono text-slate-900 placeholder-slate-500 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all ${
-                  isElderMode ? 'py-3 text-lg' : 'py-2.5 text-base'
+                placeholder="Scan Barcode / SKU (Press Enter)..."
+                className={`w-full pl-10 pr-3 bg-slate-50 border border-slate-300 rounded-md font-mono text-slate-900 placeholder-slate-400 focus:border-slate-800 focus:bg-white focus:ring-1 focus:ring-slate-800 outline-none transition-colors ${
+                  isElderMode ? 'py-2.5 text-base' : 'py-2 text-sm'
                 }`}
               />
             </div>
@@ -446,16 +446,16 @@ const playErrorBuzz = () => {
 
           {/* Text Search Input */}
           <div className="w-full sm:w-60 md:w-72 relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-              <Search className="w-5 h-5" />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <Search className="w-4 h-4" />
             </div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search product..."
-              className={`w-full pl-11 pr-4 bg-slate-50 border-2 border-slate-300 rounded-xl text-slate-900 placeholder-slate-500 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all ${
-                isElderMode ? 'py-3 text-base' : 'py-2.5 text-sm'
+              placeholder="Search products..."
+              className={`w-full pl-9 pr-3 bg-slate-50 border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:border-slate-800 focus:bg-white focus:ring-1 focus:ring-slate-800 outline-none transition-colors ${
+                isElderMode ? 'py-2.5 text-base' : 'py-2 text-sm'
               }`}
             />
           </div>
@@ -464,53 +464,53 @@ const playErrorBuzz = () => {
           <button
             type="button"
             onClick={() => setIsCameraScannerOpen(true)}
-            className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl border-2 border-emerald-600 transition-all flex items-center gap-1.5 font-bold text-xs shadow-md shadow-emerald-700/20 active:scale-95 shrink-0"
-            title="Open Camera / Webcam Barcode Scanner"
+            className="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md border border-emerald-800 transition-colors flex items-center gap-1.5 font-semibold text-xs active:translate-y-px cursor-pointer shrink-0"
+            title="Open Camera Barcode Scanner"
           >
             <Camera className="w-4 h-4" />
-            <span className="hidden sm:inline">Camera Scan</span>
+            <span className="hidden sm:inline">Camera</span>
           </button>
 
           <button
             type="button"
             onClick={fetchData}
-            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl border-2 border-slate-300 transition-colors flex items-center gap-1.5 font-bold text-xs shadow-xs"
-            title="Sync Database Catalog"
+            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md border border-slate-300 transition-colors flex items-center gap-1.5 font-semibold text-xs active:translate-y-px cursor-pointer"
+            title="Refresh Catalog"
           >
-            <RefreshCw className="w-4 h-4 text-emerald-600" />
+            <RefreshCw className="w-3.5 h-3.5 text-slate-600" />
             <span>Sync</span>
           </button>
         </div>
 
-        {/* Live Notification Banner */}
+        {/* Notification Banner */}
         {scanMessage && (
           <div
-            className={`px-5 py-3 font-black flex items-center gap-3 border-b-2 animate-in fade-in duration-150 ${
+            className={`px-4 py-2 font-bold flex items-center gap-2 border-b text-xs ${
               scanMessage.isError
-                ? 'bg-rose-100 text-rose-900 border-rose-300 text-sm'
-                : 'bg-emerald-100 text-emerald-950 border-emerald-300 text-sm'
+                ? 'bg-rose-50 text-rose-900 border-rose-200'
+                : 'bg-emerald-50 text-emerald-950 border-emerald-200'
             }`}
           >
             {scanMessage.isError ? (
-              <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             ) : (
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             )}
             <span>{scanMessage.text}</span>
           </div>
         )}
 
-        {/* Category Pills with Bright High-Contrast Styling */}
-        <div className="px-4 py-3 bg-white border-b-2 border-slate-200 flex items-center gap-2 overflow-x-auto no-scrollbar shadow-2xs">
+        {/* Category Tabs */}
+        <div className="px-3 py-2 bg-white border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setSelectedCategory(null)}
-            className={`rounded-xl font-bold whitespace-nowrap transition-all border ${
-              isElderMode ? 'px-4 py-2.5 text-sm' : 'px-3.5 py-2 text-xs'
+            className={`rounded-md font-semibold whitespace-nowrap transition-colors cursor-pointer border ${
+              isElderMode ? 'px-3 py-1.5 text-sm' : 'px-2.5 py-1 text-xs'
             } ${
               selectedCategory === null
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-700/30 border-emerald-600 ring-2 ring-emerald-400'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                ? 'bg-emerald-700 text-white border-emerald-800'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
             }`}
           >
             All Items ({products.length})
@@ -520,12 +520,12 @@ const playErrorBuzz = () => {
               key={cat.category_id}
               type="button"
               onClick={() => setSelectedCategory(cat.category_id)}
-              className={`rounded-xl font-bold whitespace-nowrap transition-all border ${
-                isElderMode ? 'px-4 py-2.5 text-sm' : 'px-3.5 py-2 text-xs'
+              className={`rounded-md font-semibold whitespace-nowrap transition-colors cursor-pointer border ${
+                isElderMode ? 'px-3 py-1.5 text-sm' : 'px-2.5 py-1 text-xs'
               } ${
                 selectedCategory === cat.category_id
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-700/30 border-emerald-600 ring-2 ring-emerald-400'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                  ? 'bg-emerald-700 text-white border-emerald-800'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
               }`}
             >
               {cat.name}
@@ -533,21 +533,21 @@ const playErrorBuzz = () => {
           ))}
         </div>
 
-        {/* Product Cards Grid — Crisp Bright White with High-Contrast Text */}
-        <div className="flex-1 p-4 overflow-y-auto bg-slate-100">
+        {/* Product Cards Grid */}
+        <div className="flex-1 p-3 overflow-y-auto bg-slate-100">
           {isLoading ? (
-            <div className="h-full flex items-center justify-center text-slate-500 font-bold text-base">
-              Loading Daumar Grocery products...
+            <div className="h-full flex items-center justify-center text-slate-500 font-semibold text-sm">
+              Loading products...
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-slate-500 text-center p-6">
-              <ShoppingBag className="w-16 h-16 mb-3 text-slate-400" />
-              <p className="font-bold text-lg text-slate-800">No matching products found</p>
-              <p className="text-sm text-slate-500 mt-1">Try searching with another keyword or category.</p>
+              <ShoppingBag className="w-12 h-12 mb-2 text-slate-400" />
+              <p className="font-bold text-base text-slate-800">No matching products found</p>
+              <p className="text-xs text-slate-500 mt-1">Try another search keyword or category.</p>
             </div>
           ) : (
             <div
-              className={`grid gap-3.5 ${
+              className={`grid gap-2.5 ${
                 isElderMode
                   ? 'grid-cols-2 lg:grid-cols-3'
                   : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
@@ -563,52 +563,79 @@ const playErrorBuzz = () => {
                   <div
                     key={product.product_id}
                     onClick={() => !isOutOfStock && addToCart(product)}
-                    className={`rounded-xl border-2 flex flex-col justify-between transition-all select-none ${
-                      isElderMode ? 'p-4 min-h-[140px]' : 'p-3.5 min-h-[120px]'
+                    className={`rounded-md border flex flex-col justify-between transition-colors select-none overflow-hidden ${
+                      isElderMode ? 'p-3 min-h-[140px]' : 'p-2.5 min-h-[125px]'
                     } ${
                       isOutOfStock
-                        ? 'bg-slate-200/70 border-slate-300 opacity-60 cursor-not-allowed'
-                        : 'bg-white border-slate-200 hover:border-emerald-600 hover:shadow-xl cursor-pointer active:scale-97 shadow-xs'
+                        ? 'bg-slate-100 border-slate-300 opacity-60 cursor-not-allowed'
+                        : 'bg-white border-slate-300 hover:border-slate-500 hover:bg-slate-50 cursor-pointer active:translate-y-px'
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between gap-1 mb-1.5">
-                        <span className="text-xs font-mono font-bold text-slate-500 truncate">
-                          {product.sku}
-                        </span>
-                        {isOutOfStock ? (
-                          <span className="px-2 py-0.5 rounded text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300">
-                            OUT OF STOCK
-                          </span>
-                        ) : isLowStock ? (
-                          <span className="px-2 py-0.5 rounded text-[11px] font-black bg-amber-100 text-amber-900 border border-amber-300">
-                            LOW: {stock}
-                          </span>
+                      <div className="flex gap-2.5 items-start">
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className={`${
+                              isElderMode ? 'w-16 h-16' : 'w-12 h-12'
+                            } rounded object-cover border border-slate-200 bg-slate-100 shrink-0`}
+                            loading="lazy"
+                            onError={(e) => {
+                              // Fallback on broken image link
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            {stock} {product.unit}
-                          </span>
+                          <div
+                            className={`${
+                              isElderMode ? 'w-16 h-16 text-sm' : 'w-12 h-12 text-xs'
+                            } rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 font-mono font-bold shrink-0`}
+                          >
+                            {product.name.slice(0, 2).toUpperCase()}
+                          </div>
                         )}
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-1 mb-0.5">
+                            <span className="text-[10px] font-mono font-semibold text-slate-500 truncate">
+                              {product.sku}
+                            </span>
+                            {isOutOfStock ? (
+                              <span className="px-1 py-0.2 rounded text-[9px] font-mono font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                                OUT
+                              </span>
+                            ) : isLowStock ? (
+                              <span className="px-1 py-0.2 rounded text-[9px] font-mono font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                LOW: {stock}
+                              </span>
+                            ) : (
+                              <span className="px-1 py-0.2 rounded text-[9px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                {stock}
+                              </span>
+                            )}
+                          </div>
+                          <h4
+                            className={`font-bold text-slate-900 line-clamp-2 leading-tight ${
+                              isElderMode ? 'text-sm' : 'text-xs sm:text-sm'
+                            }`}
+                          >
+                            {product.name}
+                          </h4>
+                        </div>
                       </div>
-                      <h4
-                        className={`font-black text-slate-900 line-clamp-2 leading-tight ${
-                          isElderMode ? 'text-base' : 'text-sm'
-                        }`}
-                      >
-                        {product.name}
-                      </h4>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t-2 border-slate-100 flex items-center justify-between">
+                    <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
                       <span
-                        className={`font-black text-emerald-700 font-mono ${
-                          isElderMode ? 'text-2xl' : 'text-xl'
+                        className={`font-bold text-slate-900 font-mono tabular-nums ${
+                          isElderMode ? 'text-lg' : 'text-base'
                         }`}
                       >
                         {formatPHP(product.selling_price)}
                       </span>
-                      <span className="text-xs text-slate-500 font-mono bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                        {product.barcode}
+                      <span className="text-[10px] text-slate-500 font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
+                        {product.unit}
                       </span>
                     </div>
                   </div>
@@ -618,42 +645,42 @@ const playErrorBuzz = () => {
           )}
         </div>
 
-        {/* Mobile Floating Cart Summary Button (only when in catalog on small screens) */}
+        {/* Mobile Floating Cart Summary Button */}
         {cart.length > 0 && mobileView === 'catalog' && (
-          <div className="md:hidden p-3 bg-white border-t-2 border-slate-200 shadow-lg shrink-0">
+          <div className="md:hidden p-3 bg-white border-t border-slate-200 shrink-0">
             <button
               type="button"
               onClick={() => setMobileView('cart')}
-              className="w-full h-12 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm flex items-center justify-between px-4 shadow-md shadow-emerald-700/30 active:scale-98 transition-all"
+              className="w-full h-11 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md font-bold text-sm flex items-center justify-between px-4 active:translate-y-px transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <ShoppingBag className="w-5 h-5" />
-                <span>View Cart ({cart.reduce((s, i) => s + i.quantity, 0)} items)</span>
+                <ShoppingBag className="w-4 h-4" />
+                <span>Cart ({cart.reduce((s, i) => s + i.quantity, 0)} items)</span>
               </div>
-              <span className="font-mono text-base">{formatPHP(totalDue)} →</span>
+              <span className="font-mono text-sm tabular-nums">{formatPHP(totalDue)} →</span>
             </button>
           </div>
         )}
       </div>
 
-      {/* RIGHT SECTION: Bright Active Cart & Checkout Panel */}
+      {/* RIGHT SECTION: Cart & Checkout Panel */}
       <div
-        className={`bg-white flex flex-col h-full border-l-2 border-slate-200 shadow-2xl ${
+        className={`bg-white flex flex-col h-full border-l border-slate-200 ${
           mobileView === 'catalog' ? 'hidden md:flex' : 'flex'
         } ${
           isElderMode ? 'w-full md:w-[420px] lg:w-[460px]' : 'w-full md:w-[380px] lg:w-[410px]'
         }`}
       >
         {/* Cart Header */}
-        <div className="px-5 py-4 border-b-2 border-slate-200 flex items-center justify-between bg-slate-50">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-sm">
-              <ShoppingBag className="w-5 h-5" />
+        <div className="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded bg-slate-800 text-white flex items-center justify-center font-bold">
+              <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-black text-base text-slate-900">Active Order Cart</h3>
-              <p className="text-xs font-semibold text-slate-500">
-                {cart.reduce((s, i) => s + i.quantity, 0)} items selected
+              <h3 className="font-bold text-sm text-slate-900">Current Order</h3>
+              <p className="text-[11px] text-slate-500 font-mono">
+                {cart.reduce((s, i) => s + i.quantity, 0)} items
               </p>
             </div>
           </div>
@@ -661,74 +688,74 @@ const playErrorBuzz = () => {
             <button
               type="button"
               onClick={clearCart}
-              className="px-2.5 py-1 text-xs font-bold text-rose-700 hover:text-rose-800 hover:bg-rose-100 rounded-lg transition-colors flex items-center gap-1 border border-rose-300"
+              className="px-2 py-1 text-xs font-semibold text-rose-700 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors flex items-center gap-1 border border-rose-200 cursor-pointer"
             >
-              <Trash2 className="w-4 h-4" />
-              Clear Cart
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear
             </button>
           )}
         </div>
 
-        {/* Cart Line Items with High-Contrast Steppers */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-2.5 bg-slate-50/50">
+        {/* Cart Line Items */}
+        <div className="flex-1 p-3 overflow-y-auto space-y-2 bg-slate-50/50">
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center p-6">
-              <ShoppingBag className="w-14 h-14 mb-3 text-slate-300" />
-              <p className="font-black text-base text-slate-700">Cart is empty</p>
-              <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
-                Click items on the left or scan barcodes with your barcode gun to begin.
+              <ShoppingBag className="w-12 h-12 mb-2 text-slate-300" />
+              <p className="font-bold text-sm text-slate-700">Cart is empty</p>
+              <p className="text-xs text-slate-500 mt-1 max-w-[220px]">
+                Click items from the catalog or scan barcodes to begin order.
               </p>
             </div>
           ) : (
             cart.map((item) => (
               <div
                 key={item.product_id}
-                className="p-3.5 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-between gap-3 shadow-xs"
+                className="p-3 rounded-md bg-white border border-slate-200 flex items-center justify-between gap-3"
               >
                 <div className="flex-1 min-w-0">
-                  <h5 className="font-black text-slate-900 text-sm truncate leading-snug">
+                  <h5 className="font-bold text-slate-900 text-xs truncate leading-snug">
                     {item.product_name}
                   </h5>
-                  <div className="text-xs text-emerald-700 font-mono mt-0.5 font-bold">
+                  <div className="text-xs text-slate-600 font-mono mt-0.5 tabular-nums">
                     {formatPHP(item.unit_price)} each
                   </div>
                 </div>
 
-                {/* Bright Elder-Friendly Steppers */}
+                {/* Steppers */}
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center border-2 border-slate-300 rounded-lg bg-white overflow-hidden shadow-2xs">
+                  <div className="flex items-center border border-slate-300 rounded bg-white overflow-hidden">
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.product_id, -1)}
-                      className="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-lg transition-colors active:scale-95"
+                      className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-base transition-colors active:translate-y-px cursor-pointer"
                       title="Decrease Quantity"
                     >
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="w-9 text-center font-black text-slate-900 text-sm font-mono">
+                    <span className="w-7 text-center font-bold text-slate-900 text-xs font-mono tabular-nums">
                       {item.quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.product_id, 1)}
-                      className="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-lg transition-colors active:scale-95"
+                      className="w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-base transition-colors active:translate-y-px cursor-pointer"
                       title="Increase Quantity"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
-                  <span className="font-black text-slate-950 text-base w-20 text-right font-mono">
+                  <span className="font-bold text-slate-900 text-sm w-16 text-right font-mono tabular-nums">
                     {formatPHP(item.total)}
                   </span>
 
                   <button
                     type="button"
                     onClick={() => removeFromCart(item.product_id)}
-                    className="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-rose-600 rounded hover:bg-rose-50 transition-colors cursor-pointer"
                     title="Remove item"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -736,34 +763,34 @@ const playErrorBuzz = () => {
           )}
         </div>
 
-        {/* Bright Senior Citizen / PWD 20% Discount Section */}
-        <div className="p-4 bg-white border-t-2 border-slate-200 space-y-3">
+        {/* Senior Citizen / PWD 20% Discount Section */}
+        <div className="p-3 bg-white border-t border-slate-200 space-y-2.5">
           <div
-            className={`p-3 rounded-xl border-2 transition-all ${
+            className={`p-2.5 rounded-md border transition-colors ${
               isSeniorPwd
-                ? 'bg-amber-50 border-amber-400 shadow-sm'
+                ? 'bg-amber-50/70 border-amber-300'
                 : 'bg-slate-50 border-slate-200'
             }`}
           >
             <div className="flex items-center justify-between">
               <label
                 htmlFor="senior-pwd-checkbox"
-                className="flex items-center gap-2.5 cursor-pointer flex-1"
+                className="flex items-center gap-2 cursor-pointer flex-1"
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                  className={`w-7 h-7 rounded flex items-center justify-center ${
                     isSeniorPwd
                       ? 'bg-amber-500 text-white font-bold'
                       : 'bg-slate-200 text-slate-600'
                   }`}
                 >
-                  <UserCheck className="w-5 h-5" />
+                  <UserCheck className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="font-black text-sm block text-slate-900">
+                  <span className="font-bold text-xs block text-slate-900">
                     Senior Citizen / PWD (20% Off)
                   </span>
-                  <span className="text-xs text-amber-700 font-bold">
+                  <span className="text-[10px] text-amber-800 font-medium font-mono">
                     12% VAT Exemption (RA 9994 / RA 10754)
                   </span>
                 </div>
@@ -776,18 +803,18 @@ const playErrorBuzz = () => {
                   setIsSeniorPwd(e.target.checked);
                   if (e.target.checked) setCustomDiscountType('none');
                 }}
-                className="w-6 h-6 accent-amber-600 rounded cursor-pointer"
+                className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
               />
             </div>
 
             {isSeniorPwd && (
-              <div className="mt-2.5 pt-2.5 border-t border-amber-200">
+              <div className="mt-2 pt-2 border-t border-amber-200">
                 <input
                   type="text"
                   value={seniorPwdId}
                   onChange={(e) => setSeniorPwdId(e.target.value)}
                   placeholder="Enter OSCA ID / PWD Booklet Number *"
-                  className="w-full px-3 py-2 bg-white border-2 border-amber-400 rounded-lg text-sm text-slate-900 placeholder-slate-400 outline-none font-mono font-bold"
+                  className="w-full px-2.5 py-1.5 bg-white border border-amber-300 rounded text-xs text-slate-900 placeholder-slate-400 outline-none font-mono font-semibold"
                 />
               </div>
             )}
@@ -796,11 +823,11 @@ const playErrorBuzz = () => {
           {/* Other discount */}
           {!isSeniorPwd && (
             <div className="flex items-center gap-2 text-xs">
-              <span className="font-bold text-slate-600">Other Discount:</span>
+              <span className="font-medium text-slate-600">Other Discount:</span>
               <select
                 value={customDiscountType}
                 onChange={(e) => setCustomDiscountType(e.target.value as any)}
-                className="bg-slate-50 border-2 border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs outline-none font-medium"
+                className="bg-slate-50 border border-slate-300 text-slate-800 rounded px-2 py-1 text-xs outline-none cursor-pointer"
               >
                 <option value="none">None</option>
                 <option value="percentage">Percentage (%)</option>
@@ -813,45 +840,45 @@ const playErrorBuzz = () => {
                   value={customDiscountValue}
                   onChange={(e) => setCustomDiscountValue(parseFloat(e.target.value) || 0)}
                   placeholder="Value"
-                  className="w-24 bg-white border-2 border-slate-300 text-slate-900 rounded-lg px-2.5 py-1.5 text-xs outline-none font-mono font-bold"
+                  className="w-20 bg-white border border-slate-300 text-slate-900 rounded px-2 py-1 text-xs outline-none font-mono font-bold tabular-nums"
                 />
               )}
             </div>
           )}
         </div>
 
-        {/* Bright Financial Summary & Big Pay Button */}
-        <div className="p-4 bg-slate-50 border-t-2 border-slate-200 space-y-3">
-          <div className="space-y-1.5 text-xs text-slate-600">
-            <div className="flex justify-between text-sm">
-              <span className="font-bold">Gross Subtotal:</span>
-              <span className="text-slate-900 font-mono font-black">{formatPHP(rawSubtotal)}</span>
+        {/* Financial Summary & Pay Button */}
+        <div className="p-3 bg-slate-50 border-t border-slate-200 space-y-2.5">
+          <div className="space-y-1 text-xs text-slate-600">
+            <div className="flex justify-between text-xs">
+              <span className="font-medium">Subtotal:</span>
+              <span className="text-slate-900 font-mono font-bold tabular-nums">{formatPHP(rawSubtotal)}</span>
             </div>
 
             {discountAmount > 0 && (
-              <div className="flex justify-between text-sm text-amber-800 font-bold">
+              <div className="flex justify-between text-xs text-amber-800 font-semibold">
                 <span>
                   {isSeniorPwd ? 'Senior 20% + VAT Exemption:' : 'Discount Benefit:'}
                 </span>
-                <span className="font-mono">-{formatPHP(discountAmount)}</span>
+                <span className="font-mono tabular-nums">-{formatPHP(discountAmount)}</span>
               </div>
             )}
 
-            <div className="flex justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200">
-              <span>VATable (12%): {formatPHP(vatableSales)}</span>
+            <div className="flex justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200 font-mono tabular-nums">
+              <span>VATable: {formatPHP(vatableSales)}</span>
               <span>12% VAT: {formatPHP(vatAmount)}</span>
             </div>
           </div>
 
-          <div className="pt-2 border-t-2 border-slate-200">
-            <div className="flex items-center justify-between mb-3">
+          <div className="pt-2 border-t border-slate-200">
+            <div className="flex items-center justify-between mb-2.5">
               <div>
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                   Total Payable
                 </span>
                 <span
-                  className={`font-black text-slate-950 font-mono leading-none ${
-                    isElderMode ? 'text-4xl text-emerald-700' : 'text-3xl text-emerald-700'
+                  className={`font-black text-slate-900 font-mono tabular-nums leading-none ${
+                    isElderMode ? 'text-3xl' : 'text-2xl'
                   }`}
                 >
                   {formatPHP(totalDue)}
@@ -859,8 +886,8 @@ const playErrorBuzz = () => {
               </div>
 
               {cart.length > 0 && (
-                <span className="text-xs text-emerald-800 font-bold bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
-                  Ready to Tender
+                <span className="text-[10px] text-emerald-800 font-bold font-mono uppercase tracking-wider bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                  Ready
                 </span>
               )}
             </div>
@@ -870,7 +897,7 @@ const playErrorBuzz = () => {
               size="lg"
               disabled={cart.length === 0}
               onClick={() => setIsPaymentModalOpen(true)}
-              className="w-full h-14 text-lg font-black tracking-wide rounded-xl shadow-xl shadow-emerald-600/25 active:scale-98 transition-transform"
+              className="w-full h-12 text-base font-bold rounded-md active:translate-y-px"
             >
               PAY & TENDER (₱)
             </Button>

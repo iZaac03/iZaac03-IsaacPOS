@@ -43,6 +43,7 @@ export interface Product {
   barcode: string;
   sku: string;
   name: string;
+  image_url?: string | null;
   description?: string;
   cost_price: number | string;
   selling_price: number | string;

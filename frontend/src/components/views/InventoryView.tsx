@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   History,
   CheckCircle2,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,6 +35,10 @@ export const InventoryView: React.FC = () => {
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+  // Product Image State
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   // Product Form
   const [formData, setFormData] = useState({
     name: '',
@@ -46,6 +51,7 @@ export const InventoryView: React.FC = () => {
     reorder_level: '10',
     unit: 'pcs',
     description: '',
+    image_url: '',
   });
 
   // Stock Adjustment Form
@@ -89,16 +95,63 @@ export const InventoryView: React.FC = () => {
     fetchProducts();
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData((prev) => ({ ...prev, image_url: '' }));
+  };
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (selectedProduct) {
-        await api.put(`/products/${selectedProduct.product_id}`, formData);
-      } else {
-        await api.post('/products', formData);
+      const submitData = new FormData();
+      submitData.append('category_id', formData.category_id);
+      submitData.append('barcode', formData.barcode);
+      submitData.append('sku', formData.sku);
+      submitData.append('name', formData.name);
+      submitData.append('cost_price', formData.cost_price);
+      submitData.append('selling_price', formData.selling_price);
+      submitData.append('reorder_level', formData.reorder_level);
+      submitData.append('unit', formData.unit);
+      if (formData.description) submitData.append('description', formData.description);
+
+      if (imageFile) {
+        submitData.append('image', imageFile);
       }
+      if (formData.image_url) {
+        submitData.append('image_url', formData.image_url);
+      }
+
+      if (selectedProduct) {
+        submitData.append('_method', 'PUT');
+        await api.post(`/products/${selectedProduct.product_id}`, submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        if (formData.stock_quantity) {
+          submitData.append('stock_quantity', formData.stock_quantity);
+        }
+        await api.post('/products', submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
       setIsCreateModalOpen(false);
       setSelectedProduct(null);
+      setImageFile(null);
+      setImagePreview(null);
       fetchProducts();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Error saving product');
@@ -107,6 +160,8 @@ export const InventoryView: React.FC = () => {
 
   const handleOpenEdit = (product: Product) => {
     setSelectedProduct(product);
+    setImageFile(null);
+    setImagePreview(product.image_url || null);
     setFormData({
       name: product.name,
       barcode: product.barcode,
@@ -118,6 +173,7 @@ export const InventoryView: React.FC = () => {
       reorder_level: product.reorder_level.toString(),
       unit: product.unit,
       description: product.description || '',
+      image_url: product.image_url || '',
     });
     setIsCreateModalOpen(true);
   };
@@ -224,6 +280,8 @@ export const InventoryView: React.FC = () => {
               size="sm"
               onClick={() => {
                 setSelectedProduct(null);
+                setImageFile(null);
+                setImagePreview(null);
                 setFormData({
                   name: '',
                   barcode: '',
@@ -235,6 +293,7 @@ export const InventoryView: React.FC = () => {
                   reorder_level: '10',
                   unit: 'pcs',
                   description: '',
+                  image_url: '',
                 });
                 setIsCreateModalOpen(true);
               }}
@@ -330,23 +389,42 @@ export const InventoryView: React.FC = () => {
                         <div className="text-[10px] text-slate-400">{p.barcode}</div>
                       </td>
                       <td className="py-2.5 px-4 font-medium text-slate-900">
-                        {p.name}
-                        {p.is_vat_exempt && (
-                          <span className="ml-1.5 px-1.5 py-0.5 text-[9px] bg-slate-100 text-slate-600 rounded">
-                            VAT-Exempt
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2.5">
+                          {p.image_url ? (
+                            <img
+                              src={p.image_url}
+                              alt={p.name}
+                              className="w-10 h-10 rounded object-cover border border-slate-200 bg-slate-100 shrink-0"
+                              loading="lazy"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 font-mono font-bold text-xs shrink-0">
+                              {p.name.slice(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="font-bold text-slate-900 leading-snug">{p.name}</div>
+                            {p.is_vat_exempt && (
+                              <span className="inline-block mt-0.5 px-1.5 py-0.2 text-[9px] bg-slate-100 text-slate-600 rounded font-mono font-semibold">
+                                VAT-Exempt
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       <td className="py-2.5 px-4 text-slate-600">
-                        {p.category?.name || '—'}
+                        {p.category?.name || '-'}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono text-slate-500">
+                      <td className="py-2.5 px-4 text-right font-mono text-slate-500 tabular-nums">
                         {formatPHP(p.cost_price)}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono font-semibold text-slate-900">
+                      <td className="py-2.5 px-4 text-right font-mono font-semibold text-slate-900 tabular-nums">
                         {formatPHP(p.selling_price)}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono font-semibold">
+                      <td className="py-2.5 px-4 text-right font-mono font-semibold tabular-nums">
                         <span
                           className={
                             isOut
@@ -426,6 +504,53 @@ export const InventoryView: React.FC = () => {
         maxWidth="lg"
       >
         <form onSubmit={handleSaveProduct} className="space-y-4 text-xs">
+          {/* Product Photo Upload */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Product Photo
+            </label>
+            <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-300 rounded-md">
+              {imagePreview ? (
+                <div className="relative group shrink-0">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-14 h-14 rounded object-cover border border-slate-300 bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-700 text-white rounded-full flex items-center justify-center text-[10px] font-bold hover:bg-rose-800 transition-colors cursor-pointer"
+                    title="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <div className="w-14 h-14 rounded border border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-slate-400 shrink-0">
+                  <ImageIcon className="w-5 h-5 text-slate-400" />
+                  <span className="text-[9px] text-slate-400 mt-0.5">No photo</span>
+                </div>
+              )}
+
+              <div className="flex-1 min-w-0">
+                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white text-slate-800 border border-slate-300 rounded hover:bg-slate-50 transition-colors cursor-pointer active:translate-y-px">
+                  <Upload className="w-3.5 h-3.5 text-slate-600" />
+                  <span>{imagePreview ? 'Change Photo' : 'Upload Image'}</span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/jpg"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  JPG, PNG, or WebP up to 5MB. Visible on POS register cards and inventory list.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Product Name *"

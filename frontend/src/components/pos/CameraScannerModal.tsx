@@ -41,22 +41,22 @@ const BarcodeCard: React.FC<{
   return (
     <div
       onClick={() => onScan(product.barcode)}
-      className="p-2.5 bg-white hover:bg-emerald-50/70 hover:border-emerald-500 border-2 border-slate-200 rounded-xl cursor-pointer transition-all shadow-2xs group flex flex-col items-center"
+      className="p-2.5 bg-white hover:bg-slate-50 hover:border-slate-500 border border-slate-300 rounded-md cursor-pointer transition-colors active:translate-y-px group flex flex-col items-center"
       title="Click to simulate scan, or aim scanner gun at this barcode"
     >
       <div className="w-full flex justify-between items-center mb-1">
-        <span className="font-black text-xs text-slate-900 group-hover:text-emerald-800 truncate">
+        <span className="font-bold text-xs text-slate-900 truncate">
           {product.name}
         </span>
-        <span className="font-mono text-xs font-black text-emerald-700 ml-1">
+        <span className="font-mono text-xs font-bold text-slate-900 tabular-nums ml-1">
           ₱{parseFloat(product.selling_price.toString()).toFixed(2)}
         </span>
       </div>
-      <div className="w-full bg-slate-50 p-1 rounded-lg border border-slate-200 flex justify-center">
+      <div className="w-full bg-slate-50 p-1 rounded border border-slate-200 flex justify-center">
         <svg ref={svgRef} className="max-w-full" />
       </div>
-      <span className="text-[9px] text-slate-400 font-mono mt-1 font-bold group-hover:text-emerald-700">
-        Aim scanner or click to add
+      <span className="text-[10px] text-slate-500 font-mono mt-1 font-medium">
+        Scan or click to add
       </span>
     </div>
   );
@@ -163,63 +163,63 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
     >
       <div className="space-y-4 text-slate-900">
         {/* Sub-tab switcher */}
-        <div className="flex items-center gap-2 border-b-2 border-slate-200 pb-2">
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
           <button
             type="button"
             onClick={() => setActiveTab('camera')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'camera'
-                ? 'bg-emerald-600 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-slate-900 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
             <Camera className="w-3.5 h-3.5" />
-            <span>Live Camera Viewfinder</span>
+            <span>Live Camera</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('sheet')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'sheet'
-                ? 'bg-emerald-600 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-slate-900 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Scannable Barcodes ({sampleProducts.length})</span>
+            <Barcode className="w-3.5 h-3.5" />
+            <span>Sample Barcodes ({sampleProducts.length})</span>
           </button>
 
           <a
             href="/barcodes.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-auto px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-emerald-700 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center gap-1"
+            className="ml-auto px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center gap-1 cursor-pointer"
             title="Open printable barcode test sheet in a new tab"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Open Test Sheet</span>
+            <span className="hidden sm:inline">Printable Sheet</span>
           </a>
         </div>
 
         {/* VIEW 1: Live Camera Viewfinder */}
         {activeTab === 'camera' && (
           <div className="space-y-3">
-            <div className="relative rounded-2xl overflow-hidden bg-slate-950 border-2 border-slate-800 shadow-inner min-h-[220px] flex items-center justify-center">
+            <div className="relative rounded-md overflow-hidden bg-slate-950 border border-slate-800 min-h-[220px] flex items-center justify-center">
               <div id="isaacpos-reader" className="w-full h-full" />
 
               {isScanning && (
                 <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center">
-                  <div className="w-full h-0.5 bg-emerald-400 shadow-[0_0_12px_#10b981] animate-pulse" />
-                  <span className="text-[10px] font-mono font-bold text-emerald-300 mt-2 bg-slate-950/80 px-2 py-0.5 rounded-full border border-emerald-500/40">
-                    ALIGN BARCODE INSIDE RETICLE
+                  <div className="w-full h-0.5 bg-red-600" />
+                  <span className="text-[10px] font-mono font-bold text-slate-300 mt-2 bg-slate-900 px-2 py-0.5 rounded border border-slate-700">
+                    ALIGN BARCODE INSIDE RED LINE
                   </span>
                 </div>
               )}
 
               {cameraError && (
                 <div className="p-6 text-center text-slate-400 max-w-sm space-y-2">
-                  <Camera className="w-10 h-10 mx-auto text-slate-600 mb-1" />
+                  <Camera className="w-8 h-8 mx-auto text-slate-600 mb-1" />
                   <p className="text-xs font-bold text-slate-300">Camera Unavailable</p>
                   <p className="text-[11px] text-slate-500 leading-relaxed">
                     {cameraError}
@@ -230,14 +230,14 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
 
             {/* Scanned Feedback */}
             {lastScanned && (
-              <div className="p-2.5 bg-emerald-50 border-2 border-emerald-400 text-emerald-950 rounded-xl flex items-center justify-between animate-in fade-in">
+              <div className="p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-950 rounded-md flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span className="text-xs font-bold">
                     Scanned: <span className="font-mono text-emerald-800">{lastScanned}</span>
                   </span>
                 </div>
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded">
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-mono">
                   Added to Cart
                 </span>
               </div>
@@ -248,11 +248,10 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
         {/* VIEW 2: Scannable Barcode Cards */}
         <div className={activeTab === 'sheet' ? 'block' : 'mt-3'}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>Aim your barcode scanner gun at any barcode below:</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+              Point barcode gun scanner at any code below:
             </span>
-            <span className="text-[10px] font-bold text-slate-400">Audio Beep Active</span>
+            <span className="text-[10px] font-semibold text-slate-400 font-mono">Audio Beep Active</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto pr-1">

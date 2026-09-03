@@ -16,29 +16,29 @@ export const Badge: React.FC<BadgeProps> = ({
   dot = false,
 }) => {
   const sizeStyles = {
-    sm: 'px-2 py-0.5 text-xs font-medium',
-    md: 'px-2.5 py-1 text-xs font-semibold',
+    sm: 'px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider',
+    md: 'px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider',
   }[size];
 
   const variantStyles = {
-    success: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-    warning: 'bg-amber-50 text-amber-700 border border-amber-200',
-    danger: 'bg-rose-50 text-rose-700 border border-rose-200',
-    info: 'bg-sky-50 text-sky-700 border border-sky-200',
-    slate: 'bg-slate-100 text-slate-700 border border-slate-200',
+    success: 'bg-emerald-50 text-emerald-800 border border-emerald-300',
+    warning: 'bg-amber-50 text-amber-800 border border-amber-300',
+    danger: 'bg-rose-50 text-rose-800 border border-rose-300',
+    info: 'bg-sky-50 text-sky-800 border border-sky-300',
+    slate: 'bg-slate-100 text-slate-800 border border-slate-300',
   }[variant];
 
   const dotColors = {
-    success: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    danger: 'bg-rose-500',
-    info: 'bg-sky-500',
-    slate: 'bg-slate-400',
+    success: 'bg-emerald-600',
+    warning: 'bg-amber-600',
+    danger: 'bg-rose-600',
+    info: 'bg-sky-600',
+    slate: 'bg-slate-500',
   }[variant];
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full ${sizeStyles} ${variantStyles} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded ${sizeStyles} ${variantStyles} ${className}`}
     >
       {dot && <span className={`w-1.5 h-1.5 rounded-full ${dotColors}`} />}
       {children}

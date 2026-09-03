@@ -64,9 +64,9 @@ export const SettingsView: React.FC = () => {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Branch Identity */}
-        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 font-semibold text-sm text-slate-900">
-            <Building2 className="w-4 h-4 text-emerald-600" />
+        <div className="bg-white rounded-md border border-slate-300 p-5 space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-200 font-bold text-sm text-slate-900">
+            <Building2 className="w-4 h-4 text-slate-700" />
             <h3>Branch Profile & Contact</h3>
           </div>
 
@@ -109,9 +109,9 @@ export const SettingsView: React.FC = () => {
         </div>
 
         {/* BIR Tax & Thermal Receipt Configuration */}
-        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 font-semibold text-sm text-slate-900">
-            <Receipt className="w-4 h-4 text-emerald-600" />
+        <div className="bg-white rounded-md border border-slate-300 p-5 space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-200 font-bold text-sm text-slate-900">
+            <Receipt className="w-4 h-4 text-slate-700" />
             <h3>BIR Tax Compliance & Receipt Layout</h3>
           </div>
 

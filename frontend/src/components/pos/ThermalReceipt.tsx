@@ -17,8 +17,8 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({ order, onClose }
   const store = order.store;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-      <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70">
+      <div className="bg-white rounded-md shadow-xl max-w-sm w-full overflow-hidden border border-slate-300">
         {/* Actions bar (hidden in print) */}
         <div className="no-print flex items-center justify-between px-4 py-3 bg-slate-900 text-white">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
@@ -201,7 +201,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({ order, onClose }
               <>
                 <p>Thank you for your purchase!</p>
                 <p>Items may be exchanged within 7 days with this receipt.</p>
-                <p className="font-bold text-slate-700">ISAACPOS — POWERING RETAIL PH</p>
+                <p className="font-bold text-slate-700">ISAACPOS | RETAIL POINT OF SALE</p>
               </>
             )}
           </div>

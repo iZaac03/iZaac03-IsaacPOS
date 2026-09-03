@@ -283,15 +283,15 @@ export const PurchaseOrdersView: React.FC = () => {
                       {po.po_number}
                     </td>
                     <td className="py-3 px-4 font-medium text-slate-800">
-                      {po.supplier?.name || '—'}
+                      {po.supplier?.name || '-'}
                     </td>
                     <td className="py-3 px-4 text-slate-600">
                       {formatDate(po.created_at)}
                     </td>
                     <td className="py-3 px-4 text-slate-600">
-                      {po.expected_delivery_date ? formatDate(po.expected_delivery_date) : '—'}
+                      {po.expected_delivery_date ? formatDate(po.expected_delivery_date) : '-'}
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-semibold text-slate-900">
+                    <td className="py-3 px-4 text-right font-mono font-semibold text-slate-900 tabular-nums">
                       {formatPHP(po.total_amount)}
                     </td>
                     <td className="py-3 px-4 text-center">{getStatusBadge(po.status)}</td>
@@ -491,7 +491,7 @@ export const PurchaseOrdersView: React.FC = () => {
         <Modal
           isOpen={isReceiveModalOpen}
           onClose={() => setIsReceiveModalOpen(false)}
-          title={`Receive Goods — ${selectedPO.po_number}`}
+          title={`Receive Goods: ${selectedPO.po_number}`}
           subtitle={`Supplier: ${selectedPO.supplier?.name}`}
           maxWidth="lg"
         >
@@ -576,7 +576,7 @@ export const PurchaseOrdersView: React.FC = () => {
         <Modal
           isOpen={true}
           onClose={() => setSelectedPO(null)}
-          title={`Purchase Order Details — ${selectedPO.po_number}`}
+          title={`Purchase Order Details: ${selectedPO.po_number}`}
           subtitle={`Supplier: ${selectedPO.supplier?.name}`}
           maxWidth="lg"
         >

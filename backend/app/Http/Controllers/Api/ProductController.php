@@ -113,6 +113,8 @@ class ProductController extends Controller
             'barcode' => 'required|string|max:100',
             'sku' => 'required|string|max:100|unique:tbl_products,sku,NULL,product_id,store_id,' . $storeId,
             'name' => 'required|string|max:200',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image_url' => 'nullable|string|max:500',
             'description' => 'nullable|string',
             'cost_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
@@ -123,8 +125,15 @@ class ProductController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
+        $imageUrl = $validated['image_url'] ?? null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $imageUrl = asset('storage/' . $path);
+        }
+
         $product = Product::create(array_merge($validated, [
             'store_id' => $storeId,
+            'image_url' => $imageUrl,
             'is_vat_exempt' => $validated['is_vat_exempt'] ?? false,
             'is_active' => $validated['is_active'] ?? true,
         ]));
@@ -181,6 +190,8 @@ class ProductController extends Controller
             'barcode' => 'sometimes|required|string|max:100',
             'sku' => "sometimes|required|string|max:100|unique:tbl_products,sku,{$id},product_id,store_id,{$storeId}",
             'name' => 'sometimes|required|string|max:200',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image_url' => 'nullable|string|max:500',
             'description' => 'nullable|string',
             'cost_price' => 'sometimes|required|numeric|min:0',
             'selling_price' => 'sometimes|required|numeric|min:0',
@@ -189,6 +200,11 @@ class ProductController extends Controller
             'is_vat_exempt' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $validated['image_url'] = asset('storage/' . $path);
+        }
 
         $product->update($validated);
 

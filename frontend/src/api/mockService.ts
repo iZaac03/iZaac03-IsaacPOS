@@ -214,6 +214,7 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
       reorder_level: Number(body.reorder_level) || 10,
       unit: body.unit || 'piece',
       is_vat_exempt: Boolean(body.is_vat_exempt),
+      image_url: body.image_url || undefined,
     };
     products.unshift(newProduct);
     saveStoredProducts(products);
@@ -224,7 +225,7 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
   }
 
   // 7. PRODUCTS: UPDATE
-  if (cleanUrl.startsWith('/products/') && method.toLowerCase() === 'put') {
+  if (cleanUrl.startsWith('/products/') && (method.toLowerCase() === 'put' || method.toLowerCase() === 'post')) {
     const id = Number(cleanUrl.split('/')[2]);
     const body = typeof data === 'string' ? JSON.parse(data) : data || {};
     const products = getStoredProducts();

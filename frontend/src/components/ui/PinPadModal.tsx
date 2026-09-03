@@ -87,21 +87,21 @@ export const PinPadModal: React.FC<PinPadModalProps> = ({
           {[0, 1, 2, 3, 4, 5].map((index) => (
             <div
               key={index}
-              className={`w-4 h-4 rounded-full border-2 transition-all duration-150 ${
+              className={`w-3.5 h-3.5 rounded-full border-2 transition-colors ${
                 index < pin.length
                   ? darkTheme
-                    ? 'bg-amber-400 border-amber-400 scale-110 shadow-sm shadow-amber-500/50'
-                    : 'bg-slate-900 border-slate-900 scale-110'
+                    ? 'bg-amber-400 border-amber-400'
+                    : 'bg-slate-900 border-slate-900'
                   : darkTheme
                   ? 'border-slate-700 bg-slate-800'
-                  : 'border-slate-300 bg-slate-50'
+                  : 'border-slate-300 bg-slate-100'
               }`}
             />
           ))}
         </div>
 
         {error && (
-          <p className="text-xs font-semibold text-rose-500 mb-2 animate-bounce">
+          <p className="text-xs font-bold text-rose-600 mb-2">
             {error}
           </p>
         )}
@@ -113,10 +113,10 @@ export const PinPadModal: React.FC<PinPadModalProps> = ({
               key={digit}
               type="button"
               onClick={() => handleDigit(digit)}
-              className={`h-12 rounded-lg font-semibold text-lg transition-colors active:scale-95 ${
+              className={`h-12 rounded-md font-bold text-lg cursor-pointer transition-colors active:translate-y-px ${
                 darkTheme
                   ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300'
               }`}
             >
               {digit}
@@ -125,10 +125,10 @@ export const PinPadModal: React.FC<PinPadModalProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className={`h-12 rounded-lg font-medium text-xs flex items-center justify-center transition-colors ${
+            className={`h-12 rounded-md font-semibold text-xs flex items-center justify-center cursor-pointer transition-colors active:translate-y-px ${
               darkTheme
-                ? 'bg-slate-800/50 hover:bg-slate-800 text-slate-400'
-                : 'bg-slate-50 hover:bg-slate-100 text-slate-600'
+                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
             }`}
           >
             <RotateCcw className="w-4 h-4" />
@@ -136,10 +136,10 @@ export const PinPadModal: React.FC<PinPadModalProps> = ({
           <button
             type="button"
             onClick={() => handleDigit('0')}
-            className={`h-12 rounded-lg font-semibold text-lg transition-colors active:scale-95 ${
+            className={`h-12 rounded-md font-bold text-lg cursor-pointer transition-colors active:translate-y-px ${
               darkTheme
                 ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300'
             }`}
           >
             0
@@ -147,10 +147,10 @@ export const PinPadModal: React.FC<PinPadModalProps> = ({
           <button
             type="button"
             onClick={handleBackspace}
-            className={`h-12 rounded-lg font-medium text-xs flex items-center justify-center transition-colors ${
+            className={`h-12 rounded-md font-semibold text-xs flex items-center justify-center cursor-pointer transition-colors active:translate-y-px ${
               darkTheme
-                ? 'bg-slate-800/50 hover:bg-slate-800 text-slate-400'
-                : 'bg-slate-50 hover:bg-slate-100 text-slate-600'
+                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
             }`}
           >
             <Delete className="w-4 h-4" />

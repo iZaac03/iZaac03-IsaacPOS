@@ -343,17 +343,17 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                             {p.name}
                           </td>
                           <td className="py-3 px-4 text-slate-600">
-                            {p.category?.name || '—'}
+                            {p.category?.name || '-'}
                           </td>
-                          <td className="py-3 px-4 text-right font-mono font-bold text-emerald-700">
+                          <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 tabular-nums">
                             {formatPHP(p.selling_price)}
                           </td>
-                          <td className="py-3 px-4 text-right font-mono font-bold">
+                          <td className="py-3 px-4 text-right font-mono font-bold tabular-nums">
                             <span className={isOut ? 'text-rose-600' : 'text-amber-600'}>
                               {stock} {p.unit}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-right font-mono text-slate-600">
+                          <td className="py-3 px-4 text-right font-mono text-slate-600 tabular-nums">
                             {reorder} {p.unit}
                           </td>
                           <td className="py-3 px-4 text-center">

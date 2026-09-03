@@ -43,59 +43,59 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode, on
     switch (activeTab) {
       case 'pos':
         return {
-          title: 'Point-of-Sale Register',
-          desc: 'High-speed touch terminal with barcode lookup & split tender',
+          title: 'Point of Sale',
+          desc: 'Register checkout and barcode scanner',
         };
       case 'inventory':
         return {
-          title: 'Product Catalog & Inventory',
-          desc: 'Item management, wholesale cost, SRP, and CSV bulk tools',
+          title: 'Inventory & Catalog',
+          desc: 'Products, wholesale costs, retail pricing, and CSV import',
         };
       case 'alerts':
         return {
-          title: 'Reorder & Low Stock Alerts',
-          desc: 'Urgent restocking list for depleted products',
+          title: 'Stock Reorders',
+          desc: 'Items below minimum reorder threshold',
         };
       case 'purchase_orders':
         return {
-          title: 'Supplier Purchase Orders',
-          desc: 'Procurement tracking & automatic inventory stock-in',
+          title: 'Purchase Orders',
+          desc: 'Supplier deliveries and receiving log',
         };
       case 'transactions':
         return {
-          title: 'Order Receipts & Returns',
-          desc: 'Transaction audit ledger, thermal receipts, and refunds',
+          title: 'Transactions & Receipts',
+          desc: 'Order history, reprints, and customer returns',
         };
       case 'analytics':
         return {
-          title: 'Executive Sales Analytics',
-          desc: 'Revenue trajectories, tender breakdowns, and cashier audit',
+          title: 'Sales Reports & Audits',
+          desc: 'Daily sales, payment methods, and cashier shift logs',
         };
       case 'staff':
         return {
-          title: 'Staff Accounts & Permissions',
-          desc: 'Cashier accounts, managers, and supervisor PIN codes',
+          title: 'Staff Accounts',
+          desc: 'User permissions and supervisor PIN overrides',
         };
       case 'settings':
         return {
-          title: 'Branch Profile & BIR Tax Settings',
-          desc: 'Store TIN, permit numbers, and thermal receipt messages',
+          title: 'Store Settings',
+          desc: 'Store information, BIR TIN, and receipt layout',
         };
       default:
-        return { title: 'IsaacPOS', desc: '' };
+        return { title: 'Daumar POS', desc: '' };
     }
   };
 
   const info = getPageInfo();
 
   return (
-    <header className="h-16 px-4 sm:px-6 border-b-2 border-slate-200 flex items-center justify-between bg-white text-slate-900 shadow-2xs z-20">
+    <header className="h-16 px-4 sm:px-6 border-b border-slate-200 flex items-center justify-between bg-white text-slate-900 z-20">
       <div className="flex items-center gap-2.5 sm:gap-3">
         {onToggleSidebar && (
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border-2 border-slate-200 transition-colors shadow-2xs"
+            className="lg:hidden p-2 rounded-md text-slate-700 hover:bg-slate-100 border border-slate-300 transition-colors cursor-pointer"
             title="Toggle Navigation Menu"
           >
             <Menu className="w-5 h-5" />
@@ -103,35 +103,35 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode, on
         )}
         <div>
           <h2
-            className={`font-black tracking-tight leading-tight ${
-              isElderMode ? 'text-xl sm:text-2xl text-emerald-700' : 'text-lg sm:text-xl text-slate-900'
+            className={`font-bold tracking-tight leading-tight ${
+              isElderMode ? 'text-xl sm:text-2xl text-emerald-800' : 'text-lg sm:text-xl text-slate-900'
             }`}
           >
             {info.title}
           </h2>
-          <p className="text-xs font-semibold text-slate-500 hidden sm:block">{info.desc}</p>
+          <p className="text-xs text-slate-500 hidden sm:block">{info.desc}</p>
         </div>
       </div>
 
       {/* Right meta info */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {/* Branch pill */}
-        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border-2 border-slate-200 bg-slate-50 text-slate-800 shadow-2xs">
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium border border-slate-300 bg-slate-50 text-slate-800">
           <img
             src="/logo.png"
             alt="Daumar"
-            className="w-5 h-5 rounded-full object-cover bg-white shrink-0 border border-slate-300"
+            className="w-4 h-4 rounded object-cover bg-white shrink-0 border border-slate-300"
           />
-          <span className="font-black text-slate-900">{store?.store_name || 'Daumar Grocery Store'}</span>
+          <span className="font-bold text-slate-900">{store?.store_name || 'Daumar Grocery Store'}</span>
           <span className="text-slate-400">•</span>
           <span className="font-mono text-[11px] text-slate-600">TIN: {store?.vat_tin || '123-456-789'}</span>
         </div>
 
-        {/* Live Philippine Clock */}
-        <div className="flex items-center gap-2 font-mono text-xs font-black px-3.5 py-1.5 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-900 shadow-2xs">
-          <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+        {/* Live Clock */}
+        <div className="flex items-center gap-2 font-mono text-xs font-semibold px-3 py-1 rounded-md border border-slate-300 bg-slate-50 text-slate-800 tabular-nums">
+          <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
           <span>
-            {dateString} — {timeString}
+            {dateString} • {timeString}
           </span>
         </div>
       </div>

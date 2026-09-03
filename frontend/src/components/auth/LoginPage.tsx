@@ -84,40 +84,37 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center p-4 bg-slate-950 text-slate-100">
-      {/* Background radial accent */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12)_0,transparent_70%)] pointer-events-none" />
-
-      <div className="w-full max-w-md relative z-10 space-y-6">
+      <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-block p-1 bg-white rounded-full shadow-2xl shadow-emerald-950/80 border-2 border-emerald-500/50 mb-1">
+          <div className="inline-block p-1 bg-white rounded-lg border border-slate-700 shadow-sm mb-1">
             <img
               src="/logo.png"
               alt="Daumar Grocery Store"
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-md object-cover"
             />
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white uppercase">
-            Daumar <span className="text-emerald-400">Grocery Store</span>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">
+            Daumar Grocery Store
           </h1>
-          <p className="text-xs text-amber-400 font-bold tracking-wide">
-            Fresh & Quality Since 2026 • Point-of-Sale System
+          <p className="text-xs text-slate-400 font-medium">
+            Point of Sale Terminal • Station Sign-in
           </p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-slate-900 border-2 border-slate-800 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-5">
+        {/* Login Workstation Card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 shadow-xl space-y-5">
           {/* Auth Mode Tabs */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold">
+          <div className="grid grid-cols-2 gap-1 p-1 bg-slate-950 rounded-md border border-slate-800 text-xs font-semibold">
             <button
               type="button"
               onClick={() => {
                 setAuthMode('password');
                 setError('');
               }}
-              className={`py-2 rounded-lg transition-all ${
+              className={`py-2 rounded transition-colors cursor-pointer ${
                 authMode === 'password'
-                  ? 'bg-emerald-600 text-white shadow-xs'
+                  ? 'bg-emerald-700 text-white'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -129,9 +126,9 @@ export const LoginPage: React.FC = () => {
                 setAuthMode('pin');
                 setError('');
               }}
-              className={`py-2 rounded-lg transition-all ${
+              className={`py-2 rounded transition-colors cursor-pointer ${
                 authMode === 'pin'
-                  ? 'bg-emerald-600 text-white shadow-xs'
+                  ? 'bg-emerald-700 text-white'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -140,12 +137,12 @@ export const LoginPage: React.FC = () => {
           </div>
 
           {error && (
-            <div className="p-3 bg-rose-950/90 border-2 border-rose-800 text-rose-200 rounded-xl text-xs font-bold animate-in fade-in">
+            <div className="p-3 bg-rose-950/80 border border-rose-800 text-rose-200 rounded-md text-xs font-semibold">
               {error}
             </div>
           )}
 
-          {/* MODE 1: Email & Password Form (Empty, Ready for Manual Typing) */}
+          {/* MODE 1: Email & Password Form */}
           {authMode === 'password' && (
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <Input
@@ -156,7 +153,7 @@ export const LoginPage: React.FC = () => {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. cashier@isaacpos.ph"
+                placeholder="cashier@daumargrocery.ph"
                 darkTheme={true}
                 icon={<Mail className="w-4 h-4" />}
               />
@@ -175,7 +172,7 @@ export const LoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-slate-400 hover:text-white transition-colors p-1"
+                    className="text-slate-400 hover:text-white transition-colors p-1 cursor-pointer"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -191,10 +188,10 @@ export const LoginPage: React.FC = () => {
                 type="submit"
                 variant="emerald"
                 size="lg"
-                className="w-full text-sm font-black shadow-lg shadow-emerald-600/30 h-12 mt-2"
+                className="w-full text-sm font-bold h-11 mt-2"
                 isLoading={isLoading}
               >
-                Sign In to POS Register
+                Sign In to Terminal
               </Button>
             </form>
           )}
@@ -204,15 +201,15 @@ export const LoginPage: React.FC = () => {
             <div className="space-y-4">
               <div className="text-center">
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                  Enter 6-Digit Staff PIN Code:
+                  Enter 6-Digit Staff PIN:
                 </span>
                 <div className="flex justify-center items-center gap-2 mb-2">
                   {[0, 1, 2, 3, 4, 5].map((idx) => (
                     <div
                       key={idx}
-                      className={`w-10 h-12 rounded-xl border-2 flex items-center justify-center font-mono font-black text-xl transition-all ${
+                      className={`w-9 h-11 rounded-md border flex items-center justify-center font-mono font-bold text-lg ${
                         pinCode.length > idx
-                          ? 'bg-emerald-950 border-emerald-500 text-emerald-300 shadow-xs'
+                          ? 'bg-emerald-950 border-emerald-500 text-emerald-300'
                           : 'bg-slate-950 border-slate-800 text-slate-600'
                       }`}
                     >
@@ -229,7 +226,7 @@ export const LoginPage: React.FC = () => {
                     key={digit}
                     type="button"
                     onClick={() => handleNumpadPress(digit)}
-                    className="h-12 bg-slate-950 hover:bg-slate-800 border-2 border-slate-800 hover:border-slate-700 text-white rounded-xl text-lg font-black transition-all active:scale-95 flex items-center justify-center"
+                    className="h-12 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white rounded-md text-lg font-bold transition-colors active:translate-y-px cursor-pointer flex items-center justify-center"
                   >
                     {digit}
                   </button>
@@ -237,21 +234,21 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleNumpadClear}
-                  className="h-12 bg-slate-950 hover:bg-rose-950/50 border-2 border-slate-800 text-rose-400 rounded-xl text-xs font-black transition-all active:scale-95 flex items-center justify-center"
+                  className="h-12 bg-slate-950 hover:bg-rose-950/40 border border-slate-800 text-rose-400 rounded-md text-xs font-bold transition-colors active:translate-y-px cursor-pointer flex items-center justify-center"
                 >
                   Clear
                 </button>
                 <button
                   type="button"
                   onClick={() => handleNumpadPress('0')}
-                  className="h-12 bg-slate-950 hover:bg-slate-800 border-2 border-slate-800 hover:border-slate-700 text-white rounded-xl text-lg font-black transition-all active:scale-95 flex items-center justify-center"
+                  className="h-12 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white rounded-md text-lg font-bold transition-colors active:translate-y-px cursor-pointer flex items-center justify-center"
                 >
                   0
                 </button>
                 <button
                   type="button"
                   onClick={handleNumpadBackspace}
-                  className="h-12 bg-slate-950 hover:bg-slate-800 border-2 border-slate-800 text-slate-400 rounded-xl text-xs font-black transition-all active:scale-95 flex items-center justify-center"
+                  className="h-12 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-400 rounded-md text-xs font-bold transition-colors active:translate-y-px cursor-pointer flex items-center justify-center"
                 >
                   <Delete className="w-5 h-5" />
                 </button>
@@ -261,7 +258,7 @@ export const LoginPage: React.FC = () => {
                 type="button"
                 variant="emerald"
                 size="md"
-                className="w-full text-xs font-black h-11 mt-2"
+                className="w-full text-xs font-bold h-11 mt-2"
                 onClick={() => handlePinSubmit()}
                 isLoading={isLoading}
                 disabled={pinCode.length < 4}
@@ -273,8 +270,8 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-xs text-slate-500">
-          Philippine BIR Tax Compliant POS SaaS — Version 1.0.0
+        <div className="text-center text-xs text-slate-500 font-mono">
+          BIR Compliant POS Terminal • Version 1.0.0
         </div>
       </div>
     </div>

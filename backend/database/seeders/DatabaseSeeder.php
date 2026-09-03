@@ -721,5 +721,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'completed',
             'notes' => 'Cash payment with Senior Citizen OSCA ID',
         ]);
+
+        $this->call(ProductImageSeeder::class);
     }
 }

@@ -45,12 +45,12 @@ export const Modal: React.FC<ModalProps> = ({
   }[maxWidth] || 'max-w-2xl';
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/70">
       <div
-        className={`w-full ${maxWidthClasses} rounded-lg shadow-2xl border transition-all duration-200 overflow-hidden ${
+        className={`w-full ${maxWidthClasses} rounded-lg shadow-xl border overflow-hidden ${
           darkTheme
-            ? 'bg-slate-900 border-slate-800 text-slate-100'
-            : 'bg-white border-slate-200 text-slate-900'
+            ? 'bg-slate-900 border-slate-700 text-slate-100'
+            : 'bg-white border-slate-300 text-slate-900'
         }`}
       >
         {/* Modal Header */}

@@ -59,26 +59,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = [
     {
       id: 'pos' as ActiveTab,
-      label: 'POS Register',
-      sublabel: 'Touch Checkout & Scan',
+      label: 'Point of Sale',
+      sublabel: 'Register & Barcode Scan',
       icon: <ShoppingBag className="w-5 h-5 shrink-0" />,
-      color: 'text-emerald-400',
       badge: null,
     },
     {
       id: 'inventory' as ActiveTab,
       label: 'Inventory',
-      sublabel: 'Products & Pricing',
+      sublabel: 'Products & Stock Levels',
       icon: <Package className="w-5 h-5 shrink-0" />,
-      color: 'text-sky-400',
       badge: null,
     },
     {
       id: 'alerts' as ActiveTab,
       label: 'Stock Alerts',
-      sublabel: 'Low Inventory Reorders',
+      sublabel: 'Reorder Depleted Items',
       icon: <AlertTriangle className="w-5 h-5 shrink-0" />,
-      color: 'text-amber-400',
       badge: lowStockCount > 0 ? lowStockCount : null,
     },
     ...(!isCashier
@@ -86,9 +83,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'purchase_orders' as ActiveTab,
             label: 'Purchase Orders',
-            sublabel: 'Supplier Stock Delivery',
+            sublabel: 'Supplier Shipments',
             icon: <Truck className="w-5 h-5 shrink-0" />,
-            color: 'text-blue-400',
             badge: null,
           },
         ]
@@ -96,27 +92,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       id: 'transactions' as ActiveTab,
       label: 'Transactions',
-      sublabel: 'Receipts & Refunds',
+      sublabel: 'Receipts & Returns',
       icon: <Receipt className="w-5 h-5 shrink-0" />,
-      color: 'text-indigo-400',
       badge: null,
     },
     {
       id: 'analytics' as ActiveTab,
-      label: 'Sales Reports',
-      sublabel: 'Revenue & Shift Audit',
+      label: 'Reports & Audits',
+      sublabel: 'Sales & Shift Summaries',
       icon: <BarChart3 className="w-5 h-5 shrink-0" />,
-      color: 'text-purple-400',
       badge: null,
     },
     ...(isAdmin
       ? [
           {
             id: 'staff' as ActiveTab,
-            label: 'Staff & Roles',
-            sublabel: 'Cashiers & PIN Overrides',
+            label: 'Staff Management',
+            sublabel: 'Users & Permissions',
             icon: <Users className="w-5 h-5 shrink-0" />,
-            color: 'text-pink-400',
             badge: null,
           },
         ]
@@ -126,9 +119,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'settings' as ActiveTab,
             label: 'Store Settings',
-            sublabel: 'BIR TIN & Receipt Header',
+            sublabel: 'BIR TIN & Tax Info',
             icon: <Settings className="w-5 h-5 shrink-0" />,
-            color: 'text-slate-400',
             badge: null,
           },
         ]
@@ -141,14 +133,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {isMobileOpen && (
         <div
           onClick={onCloseMobile}
-          className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40 lg:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 bg-slate-950/70 z-40 lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 lg:static h-screen bg-slate-900 border-r border-slate-800 text-slate-100 flex flex-col justify-between transition-all duration-300 z-50 select-none shadow-2xl ${
+        className={`fixed inset-y-0 left-0 lg:static h-screen bg-slate-900 border-r border-slate-800 text-slate-100 flex flex-col justify-between transition-all duration-200 z-50 select-none ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } ${collapsed ? 'w-20' : 'w-64 sm:w-72'}`}
+        } ${collapsed ? 'w-20' : 'w-64 sm:w-68'}`}
       >
         {/* Top Brand Header */}
         <div>
@@ -157,20 +149,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <img
                 src="/logo.png"
                 alt="Daumar Grocery Store"
-                className="w-11 h-11 rounded-full object-cover bg-white p-0.5 shadow-md shadow-emerald-600/20 shrink-0 border border-emerald-500/30"
+                className="w-10 h-10 rounded-md object-cover bg-white p-0.5 shrink-0 border border-slate-700"
               />
               {!collapsed && (
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black text-sm tracking-tight text-white truncate">
-                      Daumar Grocery
-                    </span>
-                    <span className="text-[9px] px-1 py-0.2 rounded font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
-                      EST. 2026
-                    </span>
+                  <div className="font-bold text-sm tracking-tight text-white truncate">
+                    Daumar Grocery
                   </div>
-                  <p className="text-[11px] text-emerald-400 font-medium truncate">
-                    Fresh & Quality Store
+                  <p className="text-[11px] text-slate-400 truncate font-mono">
+                    Terminal Workstation
                   </p>
                 </div>
               )}
@@ -181,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 type="button"
                 onClick={onCloseMobile}
-                className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="lg:hidden p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                 title="Close Menu"
               >
                 <X className="w-5 h-5" />
@@ -191,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 type="button"
                 onClick={() => setCollapsed(!collapsed)}
-                className="hidden lg:block p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="hidden lg:block p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                 title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
               >
                 {collapsed ? (
@@ -203,156 +190,135 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
 
-        {/* Elder-Friendly Text & Scale Switcher */}
-        <div className="p-3 border-b border-slate-800/80">
-          <button
-            type="button"
-            onClick={() => setIsElderMode(!isElderMode)}
-            className={`w-full py-2 px-3 rounded-lg flex items-center justify-between text-xs font-semibold transition-all ${
-              isElderMode
-                ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/30'
-                : 'bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700'
-            }`}
-            title="Toggle Elder / Senior High-Readability Mode"
-          >
-            <div className="flex items-center gap-2">
-              {isElderMode ? (
-                <ZoomOut className="w-4 h-4 text-slate-950 shrink-0" />
-              ) : (
-                <ZoomIn className="w-4 h-4 text-amber-400 shrink-0" />
-              )}
+          {/* Elder-Friendly Text & Scale Switcher */}
+          <div className="p-3 border-b border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsElderMode(!isElderMode)}
+              className={`w-full py-2 px-3 rounded flex items-center justify-between text-xs font-semibold cursor-pointer transition-colors ${
+                isElderMode
+                  ? 'bg-amber-500 text-slate-950 font-bold border border-amber-600'
+                  : 'bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700'
+              }`}
+              title="Toggle Large Text Mode"
+            >
+              <div className="flex items-center gap-2">
+                {isElderMode ? (
+                  <ZoomOut className="w-4 h-4 text-slate-950 shrink-0" />
+                ) : (
+                  <ZoomIn className="w-4 h-4 text-amber-400 shrink-0" />
+                )}
+                {!collapsed && (
+                  <span>
+                    {isElderMode ? 'Large Text Mode' : 'Large Text'}
+                  </span>
+                )}
+              </div>
               {!collapsed && (
-                <span>
-                  {isElderMode ? 'Large Text: ON' : 'Senior Large Text'}
-                </span>
-              )}
-            </div>
-            {!collapsed && (
-              <span
-                className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                  isElderMode
-                    ? 'bg-slate-950 text-amber-300'
-                    : 'bg-slate-700 text-slate-300'
-                }`}
-              >
-                {isElderMode ? 'ACTIVE' : 'OFF'}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {/* Navigation Items */}
-        <nav className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-280px)]">
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setActiveTab(item.id);
-                  onCloseMobile?.();
-                }}
-                className={`w-full flex items-center rounded-xl transition-all text-left ${
-                  collapsed ? 'justify-center p-3' : 'px-3.5 py-3 gap-3.5'
-                } ${
-                  isActive
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-700/25 font-bold'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white font-medium'
-                }`}
-                title={item.label}
-              >
-                <div
-                  className={`${
-                    isActive ? 'text-white' : item.color
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-bold uppercase ${
+                    isElderMode
+                      ? 'bg-slate-950 text-amber-300'
+                      : 'bg-slate-700 text-slate-300'
                   }`}
                 >
-                  {item.icon}
-                </div>
-
-                {!collapsed && (
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`block truncate ${
-                          isElderMode ? 'text-base font-bold' : 'text-sm font-semibold'
-                        }`}
-                      >
-                        {item.label}
-                      </span>
-                      {item.badge !== null && (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-amber-500 text-slate-950 font-black shadow-xs">
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
-                    <span
-                      className={`block text-xs truncate ${
-                        isActive ? 'text-emerald-100' : 'text-slate-400'
-                      }`}
-                    >
-                      {item.sublabel}
-                    </span>
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Bottom User Card & Logout */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950/60">
-        <div
-          className={`flex items-center ${
-            collapsed ? 'justify-center flex-col gap-2' : 'justify-between'
-          }`}
-        >
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-black border text-sm shrink-0 ${
-                user?.role === 'admin'
-                  ? 'bg-purple-900/60 border-purple-500 text-purple-200'
-                  : user?.role === 'manager'
-                  ? 'bg-indigo-900/60 border-indigo-500 text-indigo-200'
-                  : 'bg-emerald-900/60 border-emerald-500 text-emerald-200'
-              }`}
-            >
-              {user?.name.charAt(0)}
-            </div>
-
-            {!collapsed && (
-              <div className="min-w-0">
-                <div className="text-sm font-bold text-white truncate">
-                  {user?.name}
-                </div>
-                <div className="flex items-center gap-1 text-xs text-slate-400 font-mono capitalize">
-                  {user?.role === 'admin' && (
-                    <Shield className="w-3 h-3 text-purple-400" />
-                  )}
-                  {user?.role === 'manager' && (
-                    <Key className="w-3 h-3 text-indigo-400" />
-                  )}
-                  {user?.role === 'cashier' && (
-                    <UserCheck className="w-3 h-3 text-emerald-400" />
-                  )}
-                  <span>{user?.role}</span>
-                </div>
-              </div>
-            )}
+                  {isElderMode ? 'ON' : 'OFF'}
+                </span>
+              )}
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={logout}
-            className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
-            title="Sign Out of Register"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
+          {/* Navigation Items */}
+          <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-280px)]">
+            {navItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    onCloseMobile?.();
+                  }}
+                  className={`w-full flex items-center rounded-md transition-colors text-left cursor-pointer ${
+                    collapsed ? 'justify-center p-3' : 'px-3 py-2.5 gap-3'
+                  } ${
+                    isActive
+                      ? 'bg-emerald-700 text-white font-semibold'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`}
+                  title={item.label}
+                >
+                  <div className={isActive ? 'text-white' : 'text-slate-400'}>
+                    {item.icon}
+                  </div>
+
+                  {!collapsed && (
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`block truncate ${
+                            isElderMode ? 'text-base font-bold' : 'text-sm font-medium'
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                        {item.badge !== null && (
+                          <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-500 text-slate-950 font-bold font-mono">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        className={`block text-[11px] truncate ${
+                          isActive ? 'text-emerald-100' : 'text-slate-400'
+                        }`}
+                      >
+                        {item.sublabel}
+                      </span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
         </div>
-      </div>
-    </aside>
-  </>
-);
+
+        {/* Bottom User Card & Logout */}
+        <div className="p-3 border-t border-slate-800 bg-slate-950/40">
+          <div
+            className={`flex items-center ${
+              collapsed ? 'justify-center flex-col gap-2' : 'justify-between'
+            }`}
+          >
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <div className="w-8 h-8 rounded bg-slate-800 border border-slate-700 text-white flex items-center justify-center font-bold text-xs shrink-0 font-mono">
+                {user?.name?.charAt(0).toUpperCase()}
+              </div>
+
+              {!collapsed && (
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-white truncate">
+                    {user?.name}
+                  </div>
+                  <div className="text-[11px] text-slate-400 font-mono capitalize">
+                    {user?.role}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={logout}
+              className="p-1.5 rounded text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Sign Out of Register"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
 };

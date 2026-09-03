@@ -164,10 +164,10 @@ export const StaffView: React.FC = () => {
       {/* Alert Banner */}
       {feedback && (
         <div
-          className={`flex items-center justify-between p-3.5 rounded-lg border text-xs font-medium animate-in fade-in duration-200 ${
+          className={`flex items-center justify-between p-3 rounded-md border text-xs font-semibold ${
             feedback.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-              : 'bg-rose-50 text-rose-800 border-rose-200'
+              ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+              : 'bg-rose-50 text-rose-900 border-rose-300'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -249,20 +249,20 @@ export const StaffView: React.FC = () => {
                     <td className="p-3.5 text-slate-600 font-mono">{u.email}</td>
                     <td className="p-3.5">
                       {u.role === 'admin' ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-slate-800 text-white border border-slate-700">
                           <Shield className="w-3 h-3" /> Admin
                         </span>
                       ) : u.role === 'manager' ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                          <Key className="w-3 h-3" /> Manager (PIN Auth)
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-slate-100 text-slate-800 border border-slate-300">
+                          <Key className="w-3 h-3" /> Manager
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-300">
                           <UserCheck className="w-3 h-3" /> Cashier
                         </span>
                       )}
                     </td>
-                    <td className="p-3.5 text-slate-600 font-mono">{u.phone || '—'}</td>
+                    <td className="p-3.5 text-slate-600 font-mono">{u.phone || '-'}</td>
                     <td className="p-3.5 text-center">
                       <Badge variant={u.is_active ? 'success' : 'danger'} dot>
                         {u.is_active ? 'Active' : 'Terminated'}
