@@ -49,8 +49,15 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({ order, onClose }
         >
           {/* Header */}
           <div className="text-center space-y-1 pb-3 border-b border-dashed border-slate-400">
+            <div className="flex justify-center mb-1">
+              <img
+                src="/logo.png"
+                alt="Daumar Grocery Store"
+                className="w-16 h-16 rounded-full object-cover grayscale contrast-125"
+              />
+            </div>
             <h2 className="font-bold text-sm tracking-wider uppercase">
-              {store?.store_name || 'KLAROPOS STORE'}
+              {store?.store_name || 'DAUMAR GROCERY STORE'}
             </h2>
             <p className="text-[11px] text-slate-600">Branch: {store?.branch_code || 'BGC-01'}</p>
             <p className="text-[10px] text-slate-600">{store?.address}</p>

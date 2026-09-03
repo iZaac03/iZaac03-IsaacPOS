@@ -14,6 +14,7 @@ class Store extends Model
 
     protected $fillable = [
         'store_name',
+        'logo_url',
         'branch_code',
         'address',
         'phone',

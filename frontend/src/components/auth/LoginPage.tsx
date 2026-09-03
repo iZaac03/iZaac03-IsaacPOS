@@ -40,14 +40,18 @@ export const LoginPage: React.FC = () => {
       <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-1 shadow-lg shadow-emerald-500/20">
-            <ShoppingBag className="w-6 h-6" />
+          <div className="inline-block p-1 bg-white rounded-full shadow-xl shadow-emerald-950/50 border-2 border-emerald-500/40 mb-1">
+            <img
+              src="/logo.png"
+              alt="Daumar Grocery Store"
+              className="w-24 h-24 rounded-full object-cover"
+            />
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white">
-            Klaro<span className="text-emerald-400">POS</span>
+          <h1 className="text-2xl font-black tracking-tight text-white uppercase">
+            Daumar <span className="text-emerald-400">Grocery Store</span>
           </h1>
-          <p className="text-xs text-slate-400">
-            Enterprise Cloud Point-of-Sale & Inventory Management
+          <p className="text-xs text-amber-400/90 font-medium tracking-wide">
+            Fresh & Quality Since 2026 • Point-of-Sale System
           </p>
         </div>
 

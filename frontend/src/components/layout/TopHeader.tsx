@@ -118,14 +118,18 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode }) 
       <div className="flex items-center gap-4">
         {/* Branch pill */}
         <div
-          className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
+          className={`hidden sm:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${
             activeTab === 'pos'
               ? 'bg-slate-800 border-slate-700 text-slate-300'
               : 'bg-slate-50 border-slate-200 text-slate-700'
           }`}
         >
-          <Building className="w-3.5 h-3.5 text-emerald-500" />
-          <span>{store?.branch_code || 'BGC-01'}</span>
+          <img
+            src="/logo.png"
+            alt="Daumar"
+            className="w-5 h-5 rounded-full object-cover bg-white shrink-0"
+          />
+          <span className="font-bold">{store?.store_name || 'Daumar Grocery Store'}</span>
           <span className="text-slate-400">•</span>
           <span className="font-mono text-[11px]">TIN: {store?.vat_tin || '123-456-789'}</span>
         </div>

@@ -1,6 +1,7 @@
 export interface Store {
   store_id: number;
   store_name: string;
+  logo_url?: string;
   branch_code: string;
   address: string;
   phone: string;

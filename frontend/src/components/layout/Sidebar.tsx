@@ -129,21 +129,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div>
         <div className="h-16 px-4 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-md shadow-emerald-600/30 shrink-0">
-              <ShoppingBag className="w-5 h-5" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="Daumar Grocery Store"
+              className="w-11 h-11 rounded-full object-cover bg-white p-0.5 shadow-md shadow-emerald-600/20 shrink-0 border border-emerald-500/30"
+            />
             {!collapsed && (
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-black text-base tracking-tight text-white">
-                    Klaro<span className="text-emerald-400">POS</span>
+                  <span className="font-black text-sm tracking-tight text-white truncate">
+                    Daumar Grocery
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    PH
+                  <span className="text-[9px] px-1 py-0.2 rounded font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                    EST. 2026
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 truncate">
-                  {store?.store_name || 'Flagship Superstore'}
+                <p className="text-[11px] text-emerald-400 font-medium truncate">
+                  Fresh & Quality Store
                 </p>
               </div>
             )}
