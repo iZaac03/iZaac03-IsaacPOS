@@ -51,6 +51,41 @@ class AuthController extends Controller
     }
 
     /**
+     * Quick Staff / Cashier login via 6-digit PIN code.
+     */
+    public function loginWithPin(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'pin_code' => 'required|string',
+        ]);
+
+        $user = User::with('store')
+            ->where('pin_code', $validated['pin_code'])
+            ->where('is_active', true)
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Invalid Staff / Cashier PIN code. Please try again.',
+            ], 422);
+        }
+
+        $token = $user->createToken('pos_auth_token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'user_id' => $user->user_id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'store' => $user->store,
+            ],
+            'message' => 'Login successful',
+        ]);
+    }
+
+    /**
      * Logout and revoke current token.
      */
     public function logout(Request $request): JsonResponse

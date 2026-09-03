@@ -9,6 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithPin: (pinCode: string) => Promise<void>;
   logout: () => Promise<void>;
   verifyPin: (pinCode: string) => Promise<{ valid: boolean; approver?: any; message: string }>;
   switchStore?: (store: Store) => void;
@@ -73,6 +74,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('klaropos_user', JSON.stringify(newUser));
   };
 
+  const loginWithPin = async (pinCode: string) => {
+    const res = await api.post('/auth/login-pin', { pin_code: pinCode });
+    const { token: newToken, user: newUser } = res.data;
+
+    setToken(newToken);
+    setUser(newUser);
+    if (newUser.store) {
+      setStore(newUser.store);
+      localStorage.setItem('klaropos_store', JSON.stringify(newUser.store));
+    }
+    localStorage.setItem('klaropos_token', newToken);
+    localStorage.setItem('klaropos_user', JSON.stringify(newUser));
+  };
+
   const logout = async () => {
     try {
       if (token) {
@@ -111,6 +126,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthenticated: !!token && !!user,
         isLoading,
         login,
+        loginWithPin,
         logout,
         verifyPin,
       }}

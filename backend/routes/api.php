@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\StoreController;
 |--------------------------------------------------------------------------
 */
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/login-pin', [AuthController::class, 'loginWithPin']);
 
 /*
 |--------------------------------------------------------------------------
