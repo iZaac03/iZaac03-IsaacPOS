@@ -8,8 +8,8 @@
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -20,6 +20,34 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.7);
+}
+
+/* Elder-Friendly High Contrast & Readability Enhancements */
+.elder-mode-active {
+  --font-scale: 1.15;
+}
+
+.elder-mode-active table th {
+  font-size: 13px !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+.elder-mode-active table td {
+  font-size: 14px !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+.elder-mode-active button {
+  min-height: 40px;
+}
+
+.elder-mode-active input,
+.elder-mode-active select,
+.elder-mode-active textarea {
+  font-size: 15px !important;
+  min-height: 42px;
 }
 
 /* Thermal Receipt Print Styles */
