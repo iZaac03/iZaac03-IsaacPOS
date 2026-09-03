@@ -18,18 +18,28 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Clear any persistent localStorage auto-login tokens on first page load
+  useEffect(() => {
+    localStorage.removeItem('isaacpos_token');
+    localStorage.removeItem('isaacpos_user');
+    localStorage.removeItem('isaacpos_store');
+    localStorage.removeItem('klaropos_token');
+    localStorage.removeItem('klaropos_user');
+    localStorage.removeItem('klaropos_store');
+  }, []);
+
   const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('isaacpos_user') || localStorage.getItem('klaropos_user');
+    const saved = sessionStorage.getItem('isaacpos_user');
     return saved ? JSON.parse(saved) : null;
   });
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('isaacpos_token') || localStorage.getItem('klaropos_token');
+    return sessionStorage.getItem('isaacpos_token');
   });
   const [store, setStore] = useState<Store | null>(() => {
-    const saved = localStorage.getItem('isaacpos_store') || localStorage.getItem('klaropos_store');
+    const saved = sessionStorage.getItem('isaacpos_store');
     return saved ? JSON.parse(saved) : null;
   });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -39,10 +49,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(res.data.user);
           if (res.data.user.store) {
             setStore(res.data.user.store);
-            localStorage.setItem('isaacpos_store', JSON.stringify(res.data.user.store));
+            sessionStorage.setItem('isaacpos_store', JSON.stringify(res.data.user.store));
           }
-          localStorage.setItem('isaacpos_user', JSON.stringify(res.data.user));
-          localStorage.setItem('isaacpos_token', token);
+          sessionStorage.setItem('isaacpos_user', JSON.stringify(res.data.user));
+          sessionStorage.setItem('isaacpos_token', token);
         } catch (err) {
           console.error('Session expired', err);
           logout();
@@ -69,10 +79,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(newUser);
     if (newUser.store) {
       setStore(newUser.store);
-      localStorage.setItem('isaacpos_store', JSON.stringify(newUser.store));
+      sessionStorage.setItem('isaacpos_store', JSON.stringify(newUser.store));
     }
-    localStorage.setItem('isaacpos_token', newToken);
-    localStorage.setItem('isaacpos_user', JSON.stringify(newUser));
+    sessionStorage.setItem('isaacpos_token', newToken);
+    sessionStorage.setItem('isaacpos_user', JSON.stringify(newUser));
   };
 
   const loginWithPin = async (pinCode: string) => {
@@ -83,10 +93,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(newUser);
     if (newUser.store) {
       setStore(newUser.store);
-      localStorage.setItem('isaacpos_store', JSON.stringify(newUser.store));
+      sessionStorage.setItem('isaacpos_store', JSON.stringify(newUser.store));
     }
-    localStorage.setItem('isaacpos_token', newToken);
-    localStorage.setItem('isaacpos_user', JSON.stringify(newUser));
+    sessionStorage.setItem('isaacpos_token', newToken);
+    sessionStorage.setItem('isaacpos_user', JSON.stringify(newUser));
   };
 
   const logout = async () => {
@@ -100,6 +110,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(null);
       setToken(null);
       setStore(null);
+      sessionStorage.clear();
       localStorage.removeItem('isaacpos_token');
       localStorage.removeItem('isaacpos_user');
       localStorage.removeItem('isaacpos_store');

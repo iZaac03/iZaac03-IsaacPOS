@@ -20,9 +20,11 @@ export const api = axios.create({
 });
 
 
-// Automatically attach Sanctum Bearer token if available
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('isaacpos_token') || localStorage.getItem('klaropos_token');
+  const token =
+    sessionStorage.getItem('isaacpos_token') ||
+    localStorage.getItem('isaacpos_token') ||
+    localStorage.getItem('klaropos_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
