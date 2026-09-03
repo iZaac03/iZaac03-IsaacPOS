@@ -212,3 +212,22 @@ export interface Refund {
   approver?: User;
   items?: RefundItem[];
 }
+
+export interface StockRequest {
+  request_id: number;
+  store_id: number;
+  product_id: number;
+  requested_by: number;
+  requested_quantity: number | string;
+  urgency: 'normal' | 'urgent' | 'critical';
+  status: 'pending' | 'approved' | 'converted_to_po' | 'rejected';
+  notes?: string;
+  approved_by?: number;
+  po_id?: number;
+  created_at: string;
+  product?: Product;
+  requester?: User;
+  approver?: User;
+  purchase_order?: PurchaseOrder;
+}
+

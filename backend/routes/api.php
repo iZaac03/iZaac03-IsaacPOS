@@ -73,6 +73,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/purchase-orders/{id}/status', [PurchaseOrderController::class, 'updateStatus']);
     Route::post('/purchase-orders/{id}/receive', [PurchaseOrderController::class, 'receive']);
 
+    // Cashier Stock Requests & Restock Approvals
+    Route::get('/stock-requests', [\App\Http\Controllers\Api\StockRequestController::class, 'index']);
+    Route::post('/stock-requests', [\App\Http\Controllers\Api\StockRequestController::class, 'store']);
+    Route::put('/stock-requests/{id}/status', [\App\Http\Controllers\Api\StockRequestController::class, 'updateStatus']);
+    Route::post('/stock-requests/{id}/convert-po', [\App\Http\Controllers\Api\StockRequestController::class, 'convertToPO']);
+
     // Analytics Dashboard & Cashier Audit
     Route::get('/analytics/dashboard', [AnalyticsController::class, 'dashboard']);
 
