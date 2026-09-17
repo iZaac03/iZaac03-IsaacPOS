@@ -157,8 +157,9 @@ export const GcashModal: React.FC<GcashModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150 my-6">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70">
+      <div className="flex min-h-full items-start sm:items-center justify-center p-4 pt-safe-top">
+      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150 my-4 sm:my-6">
         {/* Header with authentic GCash branding */}
         <div className="bg-gradient-to-r from-[#007dfe] to-[#005bb5] px-5 py-4 text-white flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
@@ -185,23 +186,24 @@ export const GcashModal: React.FC<GcashModalProps> = ({
 
         {/* Transaction Type Segmented Toggle */}
         <div className="p-4 bg-slate-50 border-b border-slate-200">
-          <div className="grid grid-cols-2 gap-2 bg-slate-200/70 p-1 rounded-lg">
+          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Select Transaction Type</p>
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => {
                 setType('cash_in');
                 setIsFeeManual(false);
               }}
-              className={`py-2.5 px-3 rounded-md font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`py-4 px-3 rounded-xl font-bold text-sm flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer border-2 ${
                 type === 'cash_in'
-                  ? 'bg-white text-[#007dfe] shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm'
+                  : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
               }`}
             >
-              <ArrowDownLeft className="w-4 h-4 text-emerald-600" />
-              <div className="text-left leading-tight">
-                <div>CASH IN</div>
-                <div className="text-[10px] font-normal text-slate-500">Cust Pays Cash → Store GCash</div>
+              <ArrowDownLeft className={`w-6 h-6 ${type === 'cash_in' ? 'text-emerald-600' : 'text-slate-400'}`} />
+              <div className="text-center leading-tight">
+                <div className="font-black tracking-wide">CASH IN</div>
+                <div className="text-[10px] font-normal mt-0.5 opacity-70">Customer pays → Store GCash</div>
               </div>
             </button>
 
@@ -211,16 +213,16 @@ export const GcashModal: React.FC<GcashModalProps> = ({
                 setType('cash_out');
                 setIsFeeManual(false);
               }}
-              className={`py-2.5 px-3 rounded-md font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`py-4 px-3 rounded-xl font-bold text-sm flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer border-2 ${
                 type === 'cash_out'
-                  ? 'bg-white text-[#007dfe] shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-sky-50 border-sky-500 text-sky-700 shadow-sm'
+                  : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
               }`}
             >
-              <ArrowUpRight className="w-4 h-4 text-sky-600" />
-              <div className="text-left leading-tight">
-                <div>CASH OUT</div>
-                <div className="text-[10px] font-normal text-slate-500">Cust GCash → Store Hands Cash</div>
+              <ArrowUpRight className={`w-6 h-6 ${type === 'cash_out' ? 'text-sky-600' : 'text-slate-400'}`} />
+              <div className="text-center leading-tight">
+                <div className="font-black tracking-wide">CASH OUT</div>
+                <div className="text-[10px] font-normal mt-0.5 opacity-70">Customer GCash → Store cash</div>
               </div>
             </button>
           </div>
@@ -472,6 +474,7 @@ export const GcashModal: React.FC<GcashModalProps> = ({
             </Button>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );
