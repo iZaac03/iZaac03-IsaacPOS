@@ -17,13 +17,18 @@ class GcashAndProductImageTest extends TestCase
     {
         $user = User::first();
         $store = Store::first();
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create([
+            'store_id' => $store->store_id,
+            'name' => 'General',
+            'slug' => 'general-' . uniqid(),
+        ]);
 
         $dummyBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
         $sku = 'TEST-IMG-' . time();
         $product = Product::create([
             'store_id' => $store->store_id,
-            'category_id' => 1,
+            'category_id' => $category->category_id,
             'barcode' => 'BAR-' . time(),
             'sku' => $sku,
             'name' => 'Database Image Test Product',

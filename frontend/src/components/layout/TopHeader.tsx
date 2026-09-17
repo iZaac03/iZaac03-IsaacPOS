@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Clock, CheckCircle2, Building, ShieldCheck, Menu } from 'lucide-react';
+import { Clock, CheckCircle2, Building, ShieldCheck, Menu, LogOut } from 'lucide-react';
 import { ActiveTab } from './Sidebar';
+import { TimeClockModal } from '../pos/TimeClockModal';
+import { api } from '../../api/client';
+import { TimeLog } from '../../types';
 
 export interface TopHeaderProps {
   activeTab: ActiveTab;
@@ -13,6 +16,44 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode, on
   const { store, user } = useAuth();
   const [timeString, setTimeString] = useState<string>('');
   const [dateString, setDateString] = useState<string>('');
+  const [isTimeClockOpen, setIsTimeClockOpen] = useState<boolean>(false);
+  const [isTimedIn, setIsTimedIn] = useState<boolean>(false);
+  const [activeLog, setActiveLog] = useState<TimeLog | null>(null);
+  const [timeClockDuration, setTimeClockDuration] = useState<string>('');
+
+  const fetchStatus = async () => {
+    try {
+      const res = await api.get('/time-logs/status');
+      setIsTimedIn(res.data.is_timed_in);
+      setActiveLog(res.data.current_log);
+    } catch {
+      // background
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const updateDuration = () => {
+      if (activeLog?.time_in) {
+        const start = new Date(activeLog.time_in).getTime();
+        const diff = Math.max(0, Date.now() - start);
+        const totalMins = Math.floor(diff / 60000);
+        const hrs = Math.floor(totalMins / 60);
+        const mins = totalMins % 60;
+        setTimeClockDuration(`${hrs}h ${mins}m`);
+      } else {
+        setTimeClockDuration('');
+      }
+    };
+    updateDuration();
+    const timer = setInterval(updateDuration, 1000);
+    return () => clearInterval(timer);
+  }, [activeLog]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -127,14 +168,51 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ activeTab, isElderMode, on
           <span className="font-mono text-[11px] text-slate-600">TIN: {store?.vat_tin || '123-456-789'}</span>
         </div>
 
+        {/* Cashier Attendance Pill */}
+        <button
+          type="button"
+          onClick={() => setIsTimeClockOpen(true)}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold border transition-colors cursor-pointer ${
+            isTimedIn
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+              : 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
+          }`}
+          title={isTimedIn ? 'Shift In Progress - Click to Time Out' : 'Click to Time In for attendance'}
+        >
+          {isTimedIn ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>On Duty</span>
+              <span className="hidden md:inline font-mono text-[11px] text-emerald-700">
+                ({timeClockDuration || 'Active'})
+              </span>
+            </>
+          ) : (
+            <>
+              <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span>Time In</span>
+            </>
+          )}
+        </button>
+
         {/* Live Clock */}
         <div className="flex items-center gap-2 font-mono text-xs font-semibold px-3 py-1 rounded-md border border-slate-300 bg-slate-50 text-slate-800 tabular-nums">
           <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-          <span>
-            {dateString} • {timeString}
-          </span>
+          <span className="hidden sm:inline">{dateString} • </span>
+          <span>{timeString}</span>
         </div>
       </div>
+
+      {isTimeClockOpen && (
+        <TimeClockModal
+          isOpen={isTimeClockOpen}
+          onClose={() => setIsTimeClockOpen(false)}
+          onStatusChange={(timedIn, log) => {
+            setIsTimedIn(timedIn);
+            setActiveLog(log);
+          }}
+        />
+      )}
     </header>
   );
 };

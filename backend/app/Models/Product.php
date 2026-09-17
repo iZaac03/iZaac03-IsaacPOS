@@ -59,6 +59,11 @@ class Product extends Model
         return $this->hasMany(OrderItem::class, 'product_id', 'product_id');
     }
 
+    public function purchaseOrderItems()
+    {
+        return $this->hasMany(PurchaseOrderItem::class, 'product_id', 'product_id');
+    }
+
     public function isLowStock(): bool
     {
         return $this->stock_quantity <= $this->reorder_level;

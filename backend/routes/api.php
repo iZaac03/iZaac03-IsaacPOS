@@ -72,8 +72,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/purchase-orders', [PurchaseOrderController::class, 'index']);
     Route::post('/purchase-orders', [PurchaseOrderController::class, 'store']);
     Route::get('/purchase-orders/{id}', [PurchaseOrderController::class, 'show']);
+    Route::put('/purchase-orders/{id}', [PurchaseOrderController::class, 'update']);
     Route::put('/purchase-orders/{id}/status', [PurchaseOrderController::class, 'updateStatus']);
     Route::post('/purchase-orders/{id}/receive', [PurchaseOrderController::class, 'receive']);
+
+    // Attendance & Cashier Shift Time Logs
+    Route::get('/time-logs/status', [\App\Http\Controllers\Api\TimeLogController::class, 'status']);
+    Route::post('/time-logs/time-in', [\App\Http\Controllers\Api\TimeLogController::class, 'timeIn']);
+    Route::post('/time-logs/time-out', [\App\Http\Controllers\Api\TimeLogController::class, 'timeOut']);
+    Route::get('/time-logs', [\App\Http\Controllers\Api\TimeLogController::class, 'index']);
 
     // Cashier Stock Requests & Restock Approvals
     Route::get('/stock-requests', [\App\Http\Controllers\Api\StockRequestController::class, 'index']);

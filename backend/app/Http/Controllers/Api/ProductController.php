@@ -88,11 +88,43 @@ class ProductController extends Controller
     {
         $storeId = $request->user()->store_id;
 
-        $lowStockItems = Product::with('category')
-            ->where('store_id', $storeId)
-            ->whereColumn('stock_quantity', '<=', 'reorder_level')
-            ->orderBy('stock_quantity', 'asc')
-            ->get();
+        $lowStockItems = Product::with([
+            'category',
+            'purchaseOrderItems' => function ($q) use ($storeId) {
+                $q->whereHas('purchaseOrder', function ($po) use ($storeId) {
+                    $po->where('store_id', $storeId)
+                       ->whereIn('status', ['draft', 'sent']);
+                })->with(['purchaseOrder.supplier'])->latest('created_at');
+            }
+        ])
+        ->where('store_id', $storeId)
+        ->whereColumn('stock_quantity', '<=', 'reorder_level')
+        ->orderBy('stock_quantity', 'asc')
+        ->get();
+
+        $lowStockItems->each(function ($product) {
+            $activeItem = $product->purchaseOrderItems->first();
+            if ($activeItem && $activeItem->purchaseOrder) {
+                $po = $activeItem->purchaseOrder;
+                $product->active_po = [
+                    'po_id' => $po->po_id,
+                    'po_item_id' => $activeItem->po_item_id,
+                    'po_number' => $po->po_number,
+                    'status' => $po->status,
+                    'supplier_id' => $po->supplier_id,
+                    'supplier_name' => $po->supplier->name ?? null,
+                    'quantity_ordered' => (float)$activeItem->quantity_ordered,
+                    'quantity_received' => (float)$activeItem->quantity_received,
+                    'unit_cost' => (float)$activeItem->unit_cost,
+                    'total_cost' => (float)$activeItem->total_cost,
+                    'expected_delivery_date' => $po->expected_delivery_date ? $po->expected_delivery_date->format('Y-m-d') : null,
+                    'notes' => $po->notes,
+                    'created_at' => $po->created_at ? $po->created_at->toISOString() : null,
+                ];
+            } else {
+                $product->active_po = null;
+            }
+        });
 
         return response()->json([
             'count' => $lowStockItems->count(),

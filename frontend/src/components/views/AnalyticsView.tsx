@@ -378,6 +378,7 @@ export const AnalyticsView: React.FC = () => {
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 uppercase font-semibold text-[10px]">
                 <th className="p-3">Cashier</th>
+                <th className="p-3 text-center">Shift Attendance</th>
                 <th className="p-3 text-right">Orders</th>
                 <th className="p-3 text-right">Sales</th>
                 <th className="p-3 text-right">GCash Txns</th>
@@ -391,6 +392,25 @@ export const AnalyticsView: React.FC = () => {
                   <td className="p-3">
                     <div className="font-bold text-slate-900">{ca.name}</div>
                     <div className="text-[10px] text-slate-500 font-mono">{ca.email}</div>
+                  </td>
+                  <td className="p-3 text-center">
+                    {ca.shift_status === 'timed_in' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>On Duty ({ca.time_in || 'Active'})</span>
+                      </span>
+                    ) : ca.shift_status === 'timed_out' ? (
+                      <div className="inline-flex flex-col items-center">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-300">
+                          Timed Out ({ca.total_hours} hrs)
+                        </span>
+                        {ca.time_in && ca.time_out && (
+                          <span className="text-[9px] text-slate-400 font-mono">{ca.time_in} - {ca.time_out}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 italic">No shift today</span>
+                    )}
                   </td>
                   <td className="p-3 text-right font-mono font-medium text-slate-800 tabular-nums">
                     {ca.transactions_count}

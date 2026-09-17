@@ -133,10 +133,20 @@ class AnalyticsController extends Controller
                 ->whereDate('created_at', $now->toDateString())
                 ->where('status', 'completed');
 
+            $todayLog = \App\Models\TimeLog::where('store_id', $storeId)
+                ->where('user_id', $c->user_id)
+                ->whereDate('time_in', $now->toDateString())
+                ->latest('time_in')
+                ->first();
+
             $cashierAudit[] = [
                 'cashier_id' => $c->user_id,
                 'name' => $c->name,
                 'email' => $c->email,
+                'shift_status' => $todayLog ? $todayLog->status : 'not_started',
+                'time_in' => $todayLog && $todayLog->time_in ? $todayLog->time_in->format('h:i A') : null,
+                'time_out' => $todayLog && $todayLog->time_out ? $todayLog->time_out->format('h:i A') : null,
+                'total_hours' => $todayLog ? (float)$todayLog->total_hours : null,
                 'transactions_count' => $cOrders->count(),
                 'total_sales' => (float)$cOrders->sum('total_amount'),
                 'total_discounts' => (float)$cOrders->sum('discount_amount'),

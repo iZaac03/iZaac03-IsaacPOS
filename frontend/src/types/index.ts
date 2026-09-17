@@ -53,6 +53,21 @@ export interface Product {
   is_vat_exempt: boolean;
   is_active: boolean;
   category?: Category;
+  active_po?: {
+    po_id: number;
+    po_item_id: number;
+    po_number: string;
+    status: string;
+    supplier_id: number;
+    supplier_name?: string | null;
+    quantity_ordered: number;
+    quantity_received?: number;
+    unit_cost: number;
+    total_cost: number;
+    expected_delivery_date?: string | null;
+    notes?: string | null;
+    created_at?: string | null;
+  } | null;
 }
 
 export interface Customer {
@@ -271,5 +286,24 @@ export interface GcashSummary {
   total_cash_out_volume: number;
   total_fees_earned: number;
   total_count: number;
+}
+
+export interface TimeLog {
+  time_log_id: number;
+  store_id: number;
+  user_id: number;
+  time_in: string;
+  time_out?: string | null;
+  total_hours?: number | null;
+  status: 'timed_in' | 'timed_out';
+  notes?: string | null;
+  created_at: string;
+  updated_at?: string;
+  user?: {
+    user_id: number;
+    name: string;
+    email: string;
+    role: string;
+  };
 }
 

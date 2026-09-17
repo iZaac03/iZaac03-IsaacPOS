@@ -64,6 +64,18 @@ class User extends Authenticatable
         return $this->role === 'manager' || $this->role === 'admin';
     }
 
+    public function timeLogs()
+    {
+        return $this->hasMany(TimeLog::class, 'user_id', 'user_id');
+    }
+
+    public function activeTimeLog()
+    {
+        return $this->hasOne(TimeLog::class, 'user_id', 'user_id')
+            ->where('status', 'timed_in')
+            ->latestOfMany('time_in');
+    }
+
     public function isCashier(): bool
     {
         return $this->role === 'cashier';

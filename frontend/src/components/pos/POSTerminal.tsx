@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Product, Category, Customer, Order, OrderItem, Payment } from '../../types';
+import { Product, Category, Customer, Order, OrderItem, Payment, TimeLog } from '../../types';
 import { api } from '../../api/client';
 import { formatPHP } from '../../utils/format';
 import { SplitPaymentModal } from './SplitPaymentModal';
 import { ThermalReceipt } from './ThermalReceipt';
 import { CameraScannerModal } from './CameraScannerModal';
 import { GcashModal } from './GcashModal';
+import { TimeClockModal } from './TimeClockModal';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import {
@@ -22,6 +23,9 @@ import {
   RefreshCw,
   Camera,
   Ban,
+  Clock,
+  LogOut,
+  LogIn,
 } from 'lucide-react';
 
 export interface POSTerminalProps {
@@ -88,8 +92,46 @@ const playErrorBuzz = () => {
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
   const [isCameraScannerOpen, setIsCameraScannerOpen] = useState<boolean>(false);
   const [isGcashModalOpen, setIsGcashModalOpen] = useState<boolean>(false);
+  const [isTimeClockModalOpen, setIsTimeClockModalOpen] = useState<boolean>(false);
+  const [isCashierTimedIn, setIsCashierTimedIn] = useState<boolean>(false);
+  const [activeTimeLog, setActiveTimeLog] = useState<TimeLog | null>(null);
+  const [timeClockDuration, setTimeClockDuration] = useState<string>('');
 
   const barcodeInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchTimeClockStatus = async () => {
+    try {
+      const res = await api.get('/time-logs/status');
+      setIsCashierTimedIn(res.data.is_timed_in);
+      setActiveTimeLog(res.data.current_log);
+    } catch {
+      // background sync
+    }
+  };
+
+  useEffect(() => {
+    fetchTimeClockStatus();
+    const interval = setInterval(fetchTimeClockStatus, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const updateDuration = () => {
+      if (activeTimeLog?.time_in) {
+        const start = new Date(activeTimeLog.time_in).getTime();
+        const diff = Math.max(0, Date.now() - start);
+        const totalMins = Math.floor(diff / 60000);
+        const hrs = Math.floor(totalMins / 60);
+        const mins = totalMins % 60;
+        setTimeClockDuration(`${hrs}h ${mins}m`);
+      } else {
+        setTimeClockDuration('');
+      }
+    };
+    updateDuration();
+    const timer = setInterval(updateDuration, 1000);
+    return () => clearInterval(timer);
+  }, [activeTimeLog]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -483,6 +525,36 @@ const playErrorBuzz = () => {
           >
             <span className="w-4 h-4 rounded bg-white text-[#007dfe] font-black text-[10px] flex items-center justify-center">G</span>
             <span className="hidden sm:inline">GCash In/Out</span>
+          </button>
+
+          {/* Cashier Attendance Time In / Time Out Button */}
+          <button
+            type="button"
+            onClick={() => setIsTimeClockModalOpen(true)}
+            className={`px-3 py-2 rounded-md border transition-all flex items-center gap-1.5 font-bold text-xs active:translate-y-px cursor-pointer shrink-0 shadow-xs ${
+              isCashierTimedIn
+                ? 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-300'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-700'
+            }`}
+            title={isCashierTimedIn ? 'Shift In Progress - Click to Time Out' : 'Click to Time In for your shift'}
+          >
+            {isCashierTimedIn ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className="hidden md:inline font-mono font-bold text-emerald-800">
+                  {timeClockDuration ? `${timeClockDuration}` : 'On Duty'}
+                </span>
+                <span className="text-rose-700 font-extrabold flex items-center gap-1">
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Time Out</span>
+                </span>
+              </>
+            ) : (
+              <>
+                <Clock className="w-3.5 h-3.5 text-emerald-100" />
+                <span>Time In</span>
+              </>
+            )}
           </button>
 
           <button
@@ -958,6 +1030,18 @@ const playErrorBuzz = () => {
         isOpen={isGcashModalOpen}
         onClose={() => setIsGcashModalOpen(false)}
       />
+
+      {/* Cashier Attendance Time In / Time Out Modal */}
+      {isTimeClockModalOpen && (
+        <TimeClockModal
+          isOpen={isTimeClockModalOpen}
+          onClose={() => setIsTimeClockModalOpen(false)}
+          onStatusChange={(timedIn, log) => {
+            setIsCashierTimedIn(timedIn);
+            setActiveTimeLog(log);
+          }}
+        />
+      )}
     </div>
   );
 };

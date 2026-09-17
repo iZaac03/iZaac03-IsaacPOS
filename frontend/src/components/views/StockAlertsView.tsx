@@ -18,6 +18,9 @@ import {
   FileText,
   Check,
   X,
+  Edit3,
+  Calendar,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -48,6 +51,20 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
   const [orderQuantity, setOrderQuantity] = useState<string>('20');
   const [orderUnitCost, setOrderUnitCost] = useState<string>('');
   const [isOrdering, setIsOrdering] = useState<boolean>(false);
+
+  // Admin/Manager Alter Existing PO Modal State
+  const [isAlterModalOpen, setIsAlterModalOpen] = useState<boolean>(false);
+  const [alterProduct, setAlterProduct] = useState<Product | null>(null);
+  const [alterPoId, setAlterPoId] = useState<number | null>(null);
+  const [alterPoItemId, setAlterPoItemId] = useState<number | null>(null);
+  const [alterPoNumber, setAlterPoNumber] = useState<string>('');
+  const [alterSupplierId, setAlterSupplierId] = useState<string>('');
+  const [alterQuantity, setAlterQuantity] = useState<string>('20');
+  const [alterUnitCost, setAlterUnitCost] = useState<string>('0');
+  const [alterDeliveryDate, setAlterDeliveryDate] = useState<string>('');
+  const [alterNotes, setAlterNotes] = useState<string>('');
+  const [isAltering, setIsAltering] = useState<boolean>(false);
+  const [isCancellingPo, setIsCancellingPo] = useState<boolean>(false);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -177,6 +194,72 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
       alert(err.response?.data?.message || 'Failed to generate purchase order');
     } finally {
       setIsOrdering(false);
+    }
+  };
+
+  // Admin/Manager: Open Alter Existing Order Modal
+  const handleOpenAlterOrder = (prod: Product) => {
+    if (!prod.active_po) return;
+    setAlterProduct(prod);
+    setAlterPoId(prod.active_po.po_id);
+    setAlterPoItemId(prod.active_po.po_item_id);
+    setAlterPoNumber(prod.active_po.po_number);
+    setAlterSupplierId(prod.active_po.supplier_id?.toString() || suppliers[0]?.supplier_id?.toString() || '');
+    setAlterQuantity(prod.active_po.quantity_ordered?.toString() || '20');
+    setAlterUnitCost(prod.active_po.unit_cost?.toString() || prod.cost_price?.toString() || '0');
+    setAlterDeliveryDate(prod.active_po.expected_delivery_date || '');
+    setAlterNotes(prod.active_po.notes || '');
+    setIsAlterModalOpen(true);
+  };
+
+  // Admin/Manager: Submit Altered PO
+  const handleProcessAlterPO = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!alterPoId || !alterProduct) return;
+    setIsAltering(true);
+
+    try {
+      const qty = parseFloat(alterQuantity) || 1;
+      const cost = parseFloat(alterUnitCost) || 0;
+      const res = await api.put(`/purchase-orders/${alterPoId}`, {
+        supplier_id: parseInt(alterSupplierId),
+        expected_delivery_date: alterDeliveryDate || undefined,
+        notes: alterNotes || undefined,
+        items: [
+          {
+            po_item_id: alterPoItemId,
+            product_id: alterProduct.product_id,
+            quantity_ordered: qty,
+            unit_cost: cost,
+          },
+        ],
+      });
+      alert(res.data.message || 'Purchase order altered successfully!');
+      setIsAlterModalOpen(false);
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to alter purchase order');
+    } finally {
+      setIsAltering(false);
+    }
+  };
+
+  // Admin/Manager: Cancel PO
+  const handleCancelPO = async () => {
+    if (!alterPoId) return;
+    if (!confirm(`Are you sure you want to cancel purchase order ${alterPoNumber}? This will remove the active order.`)) {
+      return;
+    }
+    setIsCancellingPo(true);
+    try {
+      await api.put(`/purchase-orders/${alterPoId}/status`, { status: 'cancelled' });
+      alert(`Purchase order ${alterPoNumber} cancelled.`);
+      setIsAlterModalOpen(false);
+      fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to cancel purchase order');
+    } finally {
+      setIsCancellingPo(false);
     }
   };
 
@@ -340,7 +423,20 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                             <div className="text-[10px] text-slate-400">{p.barcode}</div>
                           </td>
                           <td className="py-3 px-4 font-bold text-slate-900">
-                            {p.name}
+                            <div>{p.name}</div>
+                            {p.active_po && (
+                              <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-900 border border-blue-300">
+                                  <CheckCircle className="w-3 h-3 text-blue-700" />
+                                  ALREADY ORDERED • {p.active_po.po_number} ({p.active_po.quantity_ordered} {p.unit})
+                                </span>
+                                {p.active_po.supplier_name && (
+                                  <span className="text-[10px] text-slate-500 font-medium">
+                                    via {p.active_po.supplier_name}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </td>
                           <td className="py-3 px-4 text-slate-600">
                             {p.category?.name || '-'}
@@ -357,15 +453,22 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                             {reorder} {p.unit}
                           </td>
                           <td className="py-3 px-4 text-center">
-                            {isOut ? (
-                              <Badge variant="danger" dot>
-                                Out-of-Stock
-                              </Badge>
-                            ) : (
-                              <Badge variant="warning" dot>
-                                Low Stock
-                              </Badge>
-                            )}
+                            <div className="flex flex-col items-center gap-1">
+                              {isOut ? (
+                                <Badge variant="danger" dot>
+                                  Out-of-Stock
+                                </Badge>
+                              ) : (
+                                <Badge variant="warning" dot>
+                                  Low Stock
+                                </Badge>
+                              )}
+                              {p.active_po && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
+                                  PO {p.active_po.status}
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="py-3 px-4 text-right whitespace-nowrap">
                             {/* CASHIER ACTION: Request Restock */}
@@ -373,21 +476,31 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                               <button
                                 type="button"
                                 onClick={() => handleOpenCashierRequest(p)}
-                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors"
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                               >
                                 <Send className="w-3 h-3" />
                                 <span>Request Restock</span>
                               </button>
                             )}
 
-                            {/* ADMIN / MANAGER ACTION: Order Stock or Accept Request */}
+                            {/* ADMIN / MANAGER ACTION: Alter Order / Accept Request / Create PO */}
                             {isAdminOrManager && (
                               <>
-                                {pendingReq ? (
+                                {p.active_po ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenAlterOrder(p)}
+                                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                                    title={`Alter existing purchase order ${p.active_po.po_number}`}
+                                  >
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                    <span>Alter Order</span>
+                                  </button>
+                                ) : pendingReq ? (
                                   <button
                                     type="button"
                                     onClick={() => handleOpenAcceptAndOrder(pendingReq)}
-                                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors"
+                                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                                     title="Cashier already requested this item"
                                   >
                                     <Clock className="w-3 h-3" />
@@ -397,7 +510,7 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
                                   <button
                                     type="button"
                                     onClick={() => handleOpenDirectOrder(p)}
-                                    className="px-3 py-1.5 bg-slate-900 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors"
+                                    className="px-3 py-1.5 bg-slate-900 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                                   >
                                     <ShoppingCart className="w-3 h-3" />
                                     <span>Order (Create PO)</span>
@@ -771,6 +884,154 @@ export const StockAlertsView: React.FC<{ onNavigateToPO?: () => void }> = ({ onN
               >
                 {selectedRequest ? 'Accept & Create Supplier PO' : 'Create Supplier PO'}
               </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* MODAL 3: Admin/Manager Alter Existing Purchase Order */}
+      {isAdminOrManager && isAlterModalOpen && alterProduct && (
+        <Modal
+          isOpen={isAlterModalOpen}
+          onClose={() => setIsAlterModalOpen(false)}
+          title="Alter Purchase Order"
+          subtitle={`Modify existing ${alterPoNumber} for ${alterProduct.name}`}
+          maxWidth="md"
+          darkTheme={false}
+        >
+          <form onSubmit={handleProcessAlterPO} className="space-y-4 text-xs text-slate-900">
+            {/* Product & PO Status Info Box */}
+            <div className="p-3 bg-slate-50 border-2 border-slate-200 rounded-xl space-y-1.5">
+              <div className="flex justify-between font-bold">
+                <span>Product Name:</span>
+                <span className="text-slate-900 font-black">{alterProduct.name}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>SKU / Barcode:</span>
+                <span className="font-mono">{alterProduct.sku} • {alterProduct.barcode}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Current Stock on Shelf:</span>
+                <span className="font-bold text-amber-700">
+                  {alterProduct.stock_quantity} {alterProduct.unit} (Reorder threshold: {alterProduct.reorder_level} {alterProduct.unit})
+                </span>
+              </div>
+              <div className="flex justify-between items-center pt-1 border-t border-slate-200">
+                <span className="font-semibold text-slate-700">Active Order:</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-900 border border-blue-300">
+                  {alterPoNumber} • DRAFT
+                </span>
+              </div>
+            </div>
+
+            {/* Supplier Selector */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Supplier *
+              </label>
+              <select
+                required
+                value={alterSupplierId}
+                onChange={(e) => setAlterSupplierId(e.target.value)}
+                className="w-full px-3 py-2 text-xs border-2 border-slate-300 rounded-lg bg-white text-slate-900 outline-none font-bold"
+              >
+                {suppliers.map((s) => (
+                  <option key={s.supplier_id} value={s.supplier_id}>
+                    {s.name} ({s.phone})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Quantity and Cost inputs */}
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label="Altered Quantity *"
+                type="number"
+                min="1"
+                step="1"
+                required
+                value={alterQuantity}
+                onChange={(e) => setAlterQuantity(e.target.value)}
+                placeholder="20"
+              />
+
+              <Input
+                label="Wholesale Unit Cost (₱) *"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                value={alterUnitCost}
+                onChange={(e) => setAlterUnitCost(e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* Expected Delivery Date & Notes */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="Expected Delivery Date"
+                type="date"
+                value={alterDeliveryDate}
+                onChange={(e) => setAlterDeliveryDate(e.target.value)}
+              />
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Order Modification Notes
+                </label>
+                <input
+                  type="text"
+                  value={alterNotes}
+                  onChange={(e) => setAlterNotes(e.target.value)}
+                  placeholder="e.g. Adjusted batch quantity per supplier"
+                  className="w-full px-3 py-2 text-xs border-2 border-slate-300 rounded-lg bg-white text-slate-900 outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Recalculated Order Total */}
+            <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-xl flex justify-between font-black text-sm text-amber-950">
+              <span>Updated Order Total:</span>
+              <span className="font-mono text-base text-amber-900">
+                {formatPHP(
+                  (parseFloat(alterQuantity) || 0) * (parseFloat(alterUnitCost) || 0)
+                )}
+              </span>
+            </div>
+
+            {/* Actions Footer */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200">
+              <button
+                type="button"
+                disabled={isCancellingPo || isAltering}
+                onClick={handleCancelPO}
+                className="w-full sm:w-auto px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isCancellingPo ? 'Cancelling...' : 'Cancel This PO'}</span>
+              </button>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAlterModalOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  type="submit"
+                  variant="emerald"
+                  size="sm"
+                  isLoading={isAltering}
+                  icon={<Check className="w-3.5 h-3.5" />}
+                >
+                  Save & Alter Order
+                </Button>
+              </div>
             </div>
           </form>
         </Modal>
