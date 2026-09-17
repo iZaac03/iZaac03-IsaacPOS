@@ -4,6 +4,7 @@ import { LoginPage } from './components/auth/LoginPage';
 import { Sidebar, ActiveTab } from './components/layout/Sidebar';
 import { TopHeader } from './components/layout/TopHeader';
 import { POSTerminal } from './components/pos/POSTerminal';
+import { GcashView } from './components/views/GcashView';
 import { InventoryView } from './components/views/InventoryView';
 import { StockAlertsView } from './components/views/StockAlertsView';
 import { PurchaseOrdersView } from './components/views/PurchaseOrdersView';
@@ -95,6 +96,7 @@ export const AppContent: React.FC = () => {
 
         <main className="flex-1 overflow-y-auto bg-slate-50">
           {activeTab === 'pos' && <POSTerminal isElderMode={isElderMode} />}
+          {activeTab === 'gcash' && <GcashView />}
           {activeTab === 'inventory' && <InventoryView />}
           {activeTab === 'alerts' && (
             <StockAlertsView onNavigateToPO={() => setActiveTab('purchase_orders')} />

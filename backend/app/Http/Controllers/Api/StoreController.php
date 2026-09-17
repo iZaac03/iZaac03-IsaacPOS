@@ -36,6 +36,7 @@ class StoreController extends Controller
             'vat_tin' => 'sometimes|required|string|max:50',
             'receipt_header' => 'nullable|string',
             'receipt_footer' => 'nullable|string',
+            'void_settings' => 'nullable|array',
         ]);
 
         $store->update($validated);

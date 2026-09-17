@@ -8,10 +8,33 @@ import {
   MockProduct,
   MockCategory,
 } from './mockData';
+import { GcashTransaction } from '../types';
+import { calculateGCashFee, GCASH_RATE_TIERS } from '../utils/gcashFees';
 
 const USERS_KEY = 'isaacpos_demo_users';
 const PRODUCTS_KEY = 'isaacpos_demo_products';
 const ORDERS_KEY = 'isaacpos_demo_orders';
+const GCASH_KEY = 'isaacpos_demo_gcash';
+
+function parseRequestBody(data: any): Record<string, any> {
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data);
+    } catch {
+      return {};
+    }
+  }
+  if (typeof FormData !== 'undefined' && data instanceof FormData) {
+    const obj: Record<string, any> = {};
+    data.forEach((val, key) => {
+      if (typeof val === 'string') {
+        obj[key] = val;
+      }
+    });
+    return obj;
+  }
+  return data || {};
+}
 
 // In-browser mock storage helpers
 export const getStoredUsers = (): MockUser[] => {
@@ -59,6 +82,30 @@ export const saveStoredProducts = (products: MockProduct[]) => {
 
 export const saveStoredUsers = (users: MockUser[]) => {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
+};
+
+export const getStoredGcashTransactions = (): GcashTransaction[] => {
+  try {
+    const data = localStorage.getItem(GCASH_KEY);
+    if (!data) {
+      return [];
+    }
+    const parsed: GcashTransaction[] = JSON.parse(data);
+    // Purge any legacy demo/sample records
+    const cleaned = parsed.filter(
+      (t) => t.gcash_transaction_id !== 1001 && t.gcash_transaction_id !== 1002
+    );
+    if (cleaned.length !== parsed.length) {
+      localStorage.setItem(GCASH_KEY, JSON.stringify(cleaned));
+    }
+    return cleaned;
+  } catch {
+    return [];
+  }
+};
+
+export const saveStoredGcashTransactions = (txs: GcashTransaction[]) => {
+  localStorage.setItem(GCASH_KEY, JSON.stringify(txs));
 };
 
 /**
@@ -199,7 +246,7 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
 
   // 6. PRODUCTS: CREATE
   if (cleanUrl === '/products' && method.toLowerCase() === 'post') {
-    const body = typeof data === 'string' ? JSON.parse(data) : data || {};
+    const body = parseRequestBody(data);
     const products = getStoredProducts();
     const newProduct: MockProduct = {
       product_id: Date.now(),
@@ -227,11 +274,14 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
   // 7. PRODUCTS: UPDATE
   if (cleanUrl.startsWith('/products/') && (method.toLowerCase() === 'put' || method.toLowerCase() === 'post')) {
     const id = Number(cleanUrl.split('/')[2]);
-    const body = typeof data === 'string' ? JSON.parse(data) : data || {};
+    const body = parseRequestBody(data);
     const products = getStoredProducts();
     const idx = products.findIndex((p) => p.product_id === id);
     if (idx !== -1) {
       products[idx] = { ...products[idx], ...body };
+      if (body.remove_image) {
+        products[idx].image_url = undefined;
+      }
       saveStoredProducts(products);
       return {
         status: 200,
@@ -391,8 +441,105 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
     };
   }
 
-  // 16. ANALYTICS / STOCK ALERTS / PURCHASE ORDERS FALLBACK
-  if (cleanUrl.includes('analytics') || cleanUrl.includes('purchase-order') || cleanUrl.includes('alert')) {
+  // 16. ANALYTICS DASHBOARD
+  if (cleanUrl === '/analytics/dashboard' && method.toLowerCase() === 'get') {
+    const gcashTxs = getStoredGcashTransactions();
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayGcash = gcashTxs.filter((t) => t.created_at?.startsWith(todayStr) && t.status === 'completed');
+
+    const gcashFeesToday = todayGcash.reduce((sum, t) => sum + Number(t.fee || 0), 0);
+    const gcashCashInToday = todayGcash
+      .filter((t) => t.transaction_type === 'cash_in')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const gcashCashOutToday = todayGcash
+      .filter((t) => t.transaction_type === 'cash_out')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const gcashTxnsToday = todayGcash.length;
+
+    const gcashFeesMonth = gcashTxs
+      .filter((t) => t.status === 'completed')
+      .reduce((sum, t) => sum + Number(t.fee || 0), 0);
+    const gcashCashInMonth = gcashTxs
+      .filter((t) => t.transaction_type === 'cash_in' && t.status === 'completed')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const gcashCashOutMonth = gcashTxs
+      .filter((t) => t.transaction_type === 'cash_out' && t.status === 'completed')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+    return {
+      status: 200,
+      data: {
+        kpis: {
+          sales_today: 18450.0,
+          orders_today: 28,
+          sales_this_week: 112300.0,
+          sales_this_month: 468200.0,
+          orders_this_month: 615,
+          low_stock_count: 3,
+          refunds_today: 0,
+          gcash_fees_today: gcashFeesToday,
+          gcash_cash_in_today: gcashCashInToday,
+          gcash_cash_out_today: gcashCashOutToday,
+          gcash_txns_today: gcashTxnsToday,
+          gcash_fees_month: gcashFeesMonth,
+        },
+        gcash_summary: {
+          today: {
+            fees_earned: gcashFeesToday,
+            cash_in_volume: gcashCashInToday,
+            cash_out_volume: gcashCashOutToday,
+            txns_count: gcashTxnsToday,
+          },
+          month: {
+            fees_earned: gcashFeesMonth,
+            cash_in_volume: gcashCashInMonth,
+            cash_out_volume: gcashCashOutMonth,
+            txns_count: gcashTxs.length,
+          },
+        },
+        revenue_trend: [
+          { date: '2026-09-11', label: 'Sep 11 (Fri)', total: 14200 },
+          { date: '2026-09-12', label: 'Sep 12 (Sat)', total: 22800 },
+          { date: '2026-09-13', label: 'Sep 13 (Sun)', total: 19400 },
+          { date: '2026-09-14', label: 'Sep 14 (Mon)', total: 16100 },
+          { date: '2026-09-15', label: 'Sep 15 (Tue)', total: 15300 },
+          { date: '2026-09-16', label: 'Sep 16 (Wed)', total: 17800 },
+          { date: '2026-09-17', label: 'Sep 17 (Thu)', total: 18450 },
+        ],
+        payments_by_method: [
+          { payment_method: 'cash', total_amount: 12200, count: 18 },
+          { payment_method: 'gcash', total_amount: 4850, count: 8 },
+          { payment_method: 'card', total_amount: 1400, count: 2 },
+        ],
+        top_products: [
+          { product_name: 'San Miguel Pale Pilsen 330ml', total_qty: 68, total_revenue: 4420 },
+          { product_name: 'Lucky Me Instant Pancit Canton Kalamansi', total_qty: 54, total_revenue: 1080 },
+          { product_name: 'Coca-Cola Mismo 290ml', total_qty: 48, total_revenue: 960 },
+          { product_name: 'Kopiko Blanca 3-in-1 Coffee 30g', total_qty: 42, total_revenue: 588 },
+          { product_name: 'Bear Brand Fortified Milk 33g', total_qty: 36, total_revenue: 648 },
+        ],
+        cashier_audit: [
+          {
+            cashier_id: 2,
+            name: 'Isaac Cashier',
+            email: 'cashier@klaropos.ph',
+            transactions_count: 28,
+            total_sales: 18450.0,
+            total_discounts: 350.0,
+            refunds_count: 0,
+            refunds_amount: 0,
+            gcash_count: gcashTxnsToday,
+            gcash_fees: gcashFeesToday,
+            gcash_cash_in: gcashCashInToday,
+            gcash_cash_out: gcashCashOutToday,
+          },
+        ],
+      },
+    };
+  }
+
+  // 17. STOCK ALERTS / PURCHASE ORDERS FALLBACK
+  if (cleanUrl.includes('purchase-order') || cleanUrl.includes('alert')) {
     return {
       status: 200,
       data: {
@@ -405,6 +552,130 @@ export const handleMockResponse = async (url: string, method: string = 'get', da
           average_ticket: 821.43,
         },
       },
+    };
+  }
+
+  // GCASH: RATES
+  if (cleanUrl === '/gcash-transactions/rates' && method.toLowerCase() === 'get') {
+    return {
+      status: 200,
+      data: { rates: GCASH_RATE_TIERS },
+    };
+  }
+
+  // GCASH: GET TRANSACTIONS
+  if (cleanUrl === '/gcash-transactions' && method.toLowerCase() === 'get') {
+    let txs = getStoredGcashTransactions();
+    if (params?.search) {
+      const q = params.search.toLowerCase();
+      txs = txs.filter(
+        (t) =>
+          t.customer_phone.includes(q) ||
+          (t.customer_name && t.customer_name.toLowerCase().includes(q)) ||
+          (t.reference_number && t.reference_number.includes(q))
+      );
+    }
+    if (params?.transaction_type && params.transaction_type !== 'all') {
+      txs = txs.filter((t) => t.transaction_type === params.transaction_type);
+    }
+    if (params?.date) {
+      txs = txs.filter((t) => t.created_at.startsWith(params.date));
+    }
+
+    const totalCashIn = txs
+      .filter((t) => t.transaction_type === 'cash_in' && t.status === 'completed')
+      .reduce((s, t) => s + Number(t.amount), 0);
+    const totalCashOut = txs
+      .filter((t) => t.transaction_type === 'cash_out' && t.status === 'completed')
+      .reduce((s, t) => s + Number(t.amount), 0);
+    const totalFees = txs
+      .filter((t) => t.status === 'completed')
+      .reduce((s, t) => s + Number(t.fee), 0);
+
+    return {
+      status: 200,
+      data: {
+        data: txs,
+        summary: {
+          total_cash_in_volume: totalCashIn,
+          total_cash_out_volume: totalCashOut,
+          total_fees_earned: totalFees,
+          total_count: txs.length,
+        },
+      },
+    };
+  }
+
+  // GCASH: CREATE TRANSACTION
+  if (cleanUrl === '/gcash-transactions' && method.toLowerCase() === 'post') {
+    const body = parseRequestBody(data);
+    const cleanPhone = (body.customer_phone || '').replace(/\D/g, '');
+    if (cleanPhone.length !== 11 || !cleanPhone.startsWith('09')) {
+      const err: any = new Error('The GCash mobile number must be exactly 11 digits starting with 09 (e.g. 09171234567).');
+      err.response = { status: 422, data: { message: err.message } };
+      throw err;
+    }
+
+    const amount = Number(body.amount) || 0;
+    const fee =
+      body.fee !== undefined && body.fee !== '' ? Number(body.fee) : calculateGCashFee(amount);
+    const totalAmount = body.transaction_type === 'cash_in' ? amount + fee : amount;
+
+    const newTx: GcashTransaction = {
+      gcash_transaction_id: Date.now(),
+      store_id: 1,
+      user_id: 2,
+      transaction_type: body.transaction_type || 'cash_in',
+      customer_name: body.customer_name || null,
+      customer_phone: cleanPhone,
+      amount,
+      fee,
+      total_amount: totalAmount,
+      reference_number: body.reference_number || null,
+      status: 'completed',
+      notes: body.notes || null,
+      created_at: new Date().toISOString(),
+      user: {
+        user_id: 2,
+        first_name: 'Isaac',
+        last_name: 'Cashier',
+        username: 'cashier1',
+      },
+    };
+
+    const list = getStoredGcashTransactions();
+    list.unshift(newTx);
+    saveStoredGcashTransactions(list);
+
+    return {
+      status: 201,
+      data: { transaction: newTx, message: 'GCash transaction completed successfully' },
+    };
+  }
+
+  // GCASH: VOID TRANSACTION
+  if (cleanUrl.includes('/gcash-transactions/') && cleanUrl.endsWith('/void') && method.toLowerCase() === 'post') {
+    const id = parseInt(cleanUrl.split('/')[2]);
+    const body = parseRequestBody(data);
+    const list = getStoredGcashTransactions();
+    const tx = list.find((t) => t.gcash_transaction_id === id);
+    if (tx) {
+      tx.status = 'cancelled';
+      tx.notes = (tx.notes ? tx.notes + '\n' : '') + `[VOIDED: ${body.reason || 'Voided'}]`;
+      saveStoredGcashTransactions(list);
+    }
+    return {
+      status: 200,
+      data: { message: 'GCash transaction voided successfully', transaction: tx },
+    };
+  }
+
+  // ORDERS: VOID ORDER
+  if (cleanUrl.includes('/orders/') && cleanUrl.endsWith('/void') && method.toLowerCase() === 'post') {
+    const body = parseRequestBody(data);
+    return {
+      status: 200,
+      data: { message: 'Order voided successfully and inventory restored.' },
     };
   }
 

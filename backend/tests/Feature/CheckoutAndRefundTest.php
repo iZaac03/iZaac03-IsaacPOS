@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Models\Store;
 use App\Models\User;
 use App\Models\Product;
@@ -14,6 +15,8 @@ use Exception;
 
 class CheckoutAndRefundTest extends TestCase
 {
+    use DatabaseTransactions;
+
     protected CheckoutService $checkoutService;
     protected RefundService $refundService;
 
@@ -213,5 +216,56 @@ class CheckoutAndRefundTest extends TestCase
         $this->assertNotNull($movement);
         $this->assertEquals('refund', $movement->type);
         $this->assertEquals(1.00, (float)$movement->quantity_change);
+    }
+
+    public function test_void_order_restocks_inventory_and_marks_status_voided(): void
+    {
+        $store = Store::first();
+        $admin = User::where('role', 'admin')->first();
+        $product = Product::where('store_id', $store->store_id)->first();
+        $initialStock = (float)$product->stock_quantity;
+
+        // 1. Checkout 2 items
+        $checkoutData = [
+            'discount_type' => 'none',
+            'items' => [
+                [
+                    'product_id' => $product->product_id,
+                    'quantity' => 2,
+                    'unit_price' => (float)$product->selling_price,
+                ],
+            ],
+            'payments' => [
+                [
+                    'payment_method' => 'cash',
+                    'amount' => 2 * (float)$product->selling_price,
+                    'tendered_amount' => 2 * (float)$product->selling_price,
+                ],
+            ],
+        ];
+
+        $order = $this->checkoutService->checkout($checkoutData, $admin->user_id, $store->store_id);
+        $this->assertEquals($initialStock - 2, (float)$product->fresh()->stock_quantity);
+
+        // 2. Void order
+        $response = $this->actingAs($admin)->postJson("/api/orders/{$order->order_id}/void", [
+            'reason' => 'cashier_error',
+            'notes' => 'Test void order',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals('voided', $response->json('order.order_status'));
+        $this->assertEquals('voided', $response->json('order.payment_status'));
+
+        // 3. Verify stock restored
+        $this->assertEquals($initialStock, (float)$product->fresh()->stock_quantity);
+
+        // 4. Verify StockMovement logged
+        $this->assertDatabaseHas('tbl_stock_movements', [
+            'product_id' => $product->product_id,
+            'type' => 'void',
+            'reference_type' => 'order_void',
+            'reference_id' => $order->order_id,
+        ]);
     }
 }

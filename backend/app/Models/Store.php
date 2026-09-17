@@ -22,11 +22,13 @@ class Store extends Model
         'vat_tin',
         'receipt_header',
         'receipt_footer',
+        'void_settings',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'void_settings' => 'array',
     ];
 
     public function users()

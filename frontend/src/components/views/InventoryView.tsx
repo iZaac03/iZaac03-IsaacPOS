@@ -101,7 +101,9 @@ export const InventoryView: React.FC = () => {
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        const base64 = reader.result as string;
+        setImagePreview(base64);
+        setFormData((prev) => ({ ...prev, image_url: base64 }));
       };
       reader.readAsDataURL(file);
     }
@@ -130,21 +132,23 @@ export const InventoryView: React.FC = () => {
       if (imageFile) {
         submitData.append('image', imageFile);
       }
-      if (formData.image_url) {
-        submitData.append('image_url', formData.image_url);
+      if (imagePreview) {
+        submitData.append('image_url', imagePreview);
+      } else if (selectedProduct && !formData.image_url) {
+        submitData.append('remove_image', '1');
       }
 
       if (selectedProduct) {
         submitData.append('_method', 'PUT');
         await api.post(`/products/${selectedProduct.product_id}`, submitData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { 'Content-Type': undefined },
         });
       } else {
         if (formData.stock_quantity) {
           submitData.append('stock_quantity', formData.stock_quantity);
         }
         await api.post('/products', submitData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { 'Content-Type': undefined },
         });
       }
 

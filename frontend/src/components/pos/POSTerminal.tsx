@@ -5,6 +5,7 @@ import { formatPHP } from '../../utils/format';
 import { SplitPaymentModal } from './SplitPaymentModal';
 import { ThermalReceipt } from './ThermalReceipt';
 import { CameraScannerModal } from './CameraScannerModal';
+import { GcashModal } from './GcashModal';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import {
@@ -20,6 +21,7 @@ import {
   AlertTriangle,
   RefreshCw,
   Camera,
+  Ban,
 } from 'lucide-react';
 
 export interface POSTerminalProps {
@@ -85,6 +87,7 @@ const playErrorBuzz = () => {
   const [isProcessingCheckout, setIsProcessingCheckout] = useState<boolean>(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
   const [isCameraScannerOpen, setIsCameraScannerOpen] = useState<boolean>(false);
+  const [isGcashModalOpen, setIsGcashModalOpen] = useState<boolean>(false);
 
   const barcodeInputRef = useRef<HTMLInputElement>(null);
 
@@ -471,6 +474,17 @@ const playErrorBuzz = () => {
             <span className="hidden sm:inline">Camera</span>
           </button>
 
+          {/* GCash Cash In / Out Quick Button */}
+          <button
+            type="button"
+            onClick={() => setIsGcashModalOpen(true)}
+            className="px-3 py-2 bg-[#007dfe] hover:bg-[#006bd1] text-white rounded-md border border-blue-600 transition-colors flex items-center gap-1.5 font-bold text-xs active:translate-y-px cursor-pointer shrink-0 shadow-xs"
+            title="GCash Cash In / Cash Out Station"
+          >
+            <span className="w-4 h-4 rounded bg-white text-[#007dfe] font-black text-[10px] flex items-center justify-center">G</span>
+            <span className="hidden sm:inline">GCash In/Out</span>
+          </button>
+
           <button
             type="button"
             onClick={fetchData}
@@ -687,11 +701,16 @@ const playErrorBuzz = () => {
           {cart.length > 0 && (
             <button
               type="button"
-              onClick={clearCart}
-              className="px-2 py-1 text-xs font-semibold text-rose-700 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors flex items-center gap-1 border border-rose-200 cursor-pointer"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to VOID this active sale and clear all scanned items?')) {
+                  clearCart();
+                }
+              }}
+              className="px-2.5 py-1 text-xs font-bold text-rose-700 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors flex items-center gap-1 border border-rose-200 cursor-pointer shadow-2xs"
+              title="Void Active Sale / Cancel Order"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              Clear
+              <Ban className="w-3.5 h-3.5 text-rose-600" />
+              Void Sale
             </button>
           )}
         </div>
@@ -933,6 +952,12 @@ const playErrorBuzz = () => {
           sampleProducts={products}
         />
       )}
+
+      {/* GCash Cash In / Cash Out Modal */}
+      <GcashModal
+        isOpen={isGcashModalOpen}
+        onClose={() => setIsGcashModalOpen(false)}
+      />
     </div>
   );
 };

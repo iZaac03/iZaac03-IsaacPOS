@@ -113,8 +113,8 @@ class ProductController extends Controller
             'barcode' => 'required|string|max:100',
             'sku' => 'required|string|max:100|unique:tbl_products,sku,NULL,product_id,store_id,' . $storeId,
             'name' => 'required|string|max:200',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'image_url' => 'nullable|string|max:500',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'image_url' => 'nullable|string',
             'description' => 'nullable|string',
             'cost_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
@@ -127,8 +127,10 @@ class ProductController extends Controller
 
         $imageUrl = $validated['image_url'] ?? null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $imageUrl = asset('storage/' . $path);
+            $file = $request->file('image');
+            $mime = $file->getMimeType();
+            $contents = file_get_contents($file->getRealPath());
+            $imageUrl = 'data:' . $mime . ';base64,' . base64_encode($contents);
         }
 
         $product = Product::create(array_merge($validated, [
@@ -190,8 +192,9 @@ class ProductController extends Controller
             'barcode' => 'sometimes|required|string|max:100',
             'sku' => "sometimes|required|string|max:100|unique:tbl_products,sku,{$id},product_id,store_id,{$storeId}",
             'name' => 'sometimes|required|string|max:200',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'image_url' => 'nullable|string|max:500',
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'image_url' => 'nullable|string',
+            'remove_image' => 'nullable|boolean',
             'description' => 'nullable|string',
             'cost_price' => 'sometimes|required|numeric|min:0',
             'selling_price' => 'sometimes|required|numeric|min:0',
@@ -202,8 +205,12 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image_url'] = asset('storage/' . $path);
+            $file = $request->file('image');
+            $mime = $file->getMimeType();
+            $contents = file_get_contents($file->getRealPath());
+            $validated['image_url'] = 'data:' . $mime . ';base64,' . base64_encode($contents);
+        } elseif ($request->boolean('remove_image')) {
+            $validated['image_url'] = null;
         }
 
         $product->update($validated);

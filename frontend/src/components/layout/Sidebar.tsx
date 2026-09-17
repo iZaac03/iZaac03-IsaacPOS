@@ -23,6 +23,7 @@ import {
 
 export type ActiveTab =
   | 'pos'
+  | 'gcash'
   | 'inventory'
   | 'alerts'
   | 'purchase_orders'
@@ -62,6 +63,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Point of Sale',
       sublabel: 'Register & Barcode Scan',
       icon: <ShoppingBag className="w-5 h-5 shrink-0" />,
+      badge: null,
+    },
+    {
+      id: 'gcash' as ActiveTab,
+      label: 'GCash Station',
+      sublabel: 'Cash In / Out & Rates',
+      icon: (
+        <div className="w-5 h-5 rounded bg-[#007dfe] text-white font-black text-xs flex items-center justify-center shrink-0">
+          G
+        </div>
+      ),
       badge: null,
     },
     {

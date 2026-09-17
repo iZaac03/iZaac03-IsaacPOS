@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders/checkout', [OrderController::class, 'checkout']);
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::post('/orders/{id}/void', [OrderController::class, 'voidOrder']);
 
     // Refunds & Manager Overrides
     Route::get('/refunds', [RefundController::class, 'index']);
@@ -82,6 +83,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Analytics Dashboard & Cashier Audit
     Route::get('/analytics/dashboard', [AnalyticsController::class, 'dashboard']);
+
+    // GCash Cash In / Cash Out Services
+    Route::get('/gcash-transactions/rates', [\App\Http\Controllers\Api\GcashTransactionController::class, 'rates']);
+    Route::get('/gcash-transactions', [\App\Http\Controllers\Api\GcashTransactionController::class, 'index']);
+    Route::post('/gcash-transactions', [\App\Http\Controllers\Api\GcashTransactionController::class, 'store']);
+    Route::get('/gcash-transactions/{id}', [\App\Http\Controllers\Api\GcashTransactionController::class, 'show']);
+    Route::post('/gcash-transactions/{id}/void', [\App\Http\Controllers\Api\GcashTransactionController::class, 'voidTransaction']);
 
     // User & Staff Management (Admin)
     Route::get('/users', [UserController::class, 'index']);

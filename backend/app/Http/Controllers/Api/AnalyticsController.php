@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Refund;
 use App\Models\User;
+use App\Models\GcashTransaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -54,6 +55,26 @@ class AnalyticsController extends Controller
             ->whereDate('created_at', $now->toDateString())
             ->whereIn('status', ['approved', 'completed'])
             ->sum('total_amount');
+
+        // GCash Financial Services Metrics
+        $gcashToday = GcashTransaction::where('store_id', $storeId)
+            ->whereDate('created_at', $now->toDateString())
+            ->where('status', 'completed');
+
+        $gcashFeesToday = (float)(clone $gcashToday)->sum('fee');
+        $gcashCashInToday = (float)(clone $gcashToday)->where('transaction_type', 'cash_in')->sum('amount');
+        $gcashCashOutToday = (float)(clone $gcashToday)->where('transaction_type', 'cash_out')->sum('amount');
+        $gcashTxnsCountToday = (clone $gcashToday)->count();
+
+        $gcashMonth = GcashTransaction::where('store_id', $storeId)
+            ->whereMonth('created_at', $now->month)
+            ->whereYear('created_at', $now->year)
+            ->where('status', 'completed');
+
+        $gcashFeesThisMonth = (float)(clone $gcashMonth)->sum('fee');
+        $gcashCashInThisMonth = (float)(clone $gcashMonth)->where('transaction_type', 'cash_in')->sum('amount');
+        $gcashCashOutThisMonth = (float)(clone $gcashMonth)->where('transaction_type', 'cash_out')->sum('amount');
+        $gcashTxnsCountMonth = (clone $gcashMonth)->count();
 
         // 2. Daily Revenue Trend (Last 7 Days) for Chart.js
         $revenueTrend = [];
@@ -107,6 +128,11 @@ class AnalyticsController extends Controller
                 ->whereDate('created_at', $now->toDateString())
                 ->where('status', 'completed');
 
+            $cGcash = GcashTransaction::where('store_id', $storeId)
+                ->where('user_id', $c->user_id)
+                ->whereDate('created_at', $now->toDateString())
+                ->where('status', 'completed');
+
             $cashierAudit[] = [
                 'cashier_id' => $c->user_id,
                 'name' => $c->name,
@@ -116,6 +142,10 @@ class AnalyticsController extends Controller
                 'total_discounts' => (float)$cOrders->sum('discount_amount'),
                 'refunds_count' => $cRefunds->count(),
                 'refunds_amount' => (float)$cRefunds->sum('total_amount'),
+                'gcash_count' => $cGcash->count(),
+                'gcash_fees' => (float)(clone $cGcash)->sum('fee'),
+                'gcash_cash_in' => (float)(clone $cGcash)->where('transaction_type', 'cash_in')->sum('amount'),
+                'gcash_cash_out' => (float)(clone $cGcash)->where('transaction_type', 'cash_out')->sum('amount'),
             ];
         }
 
@@ -128,6 +158,25 @@ class AnalyticsController extends Controller
                 'orders_this_month' => $ordersCountMonth,
                 'low_stock_count' => $lowStockCount,
                 'refunds_today' => $totalRefundsToday,
+                'gcash_fees_today' => $gcashFeesToday,
+                'gcash_cash_in_today' => $gcashCashInToday,
+                'gcash_cash_out_today' => $gcashCashOutToday,
+                'gcash_txns_today' => $gcashTxnsCountToday,
+                'gcash_fees_month' => $gcashFeesThisMonth,
+            ],
+            'gcash_summary' => [
+                'today' => [
+                    'fees_earned' => $gcashFeesToday,
+                    'cash_in_volume' => $gcashCashInToday,
+                    'cash_out_volume' => $gcashCashOutToday,
+                    'txns_count' => $gcashTxnsCountToday,
+                ],
+                'month' => [
+                    'fees_earned' => $gcashFeesThisMonth,
+                    'cash_in_volume' => $gcashCashInThisMonth,
+                    'cash_out_volume' => $gcashCashOutThisMonth,
+                    'txns_count' => $gcashTxnsCountMonth,
+                ],
             ],
             'revenue_trend' => $revenueTrend,
             'payments_by_method' => $paymentsByMethod,

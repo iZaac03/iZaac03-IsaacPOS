@@ -3,7 +3,7 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import JsBarcode from 'jsbarcode';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
-import { Camera, Volume2, Sparkles, CheckCircle2, ExternalLink, Printer } from 'lucide-react';
+import { Camera, Volume2, Sparkles, CheckCircle2, ExternalLink, Printer, Barcode } from 'lucide-react';
 import { Product } from '../../types';
 
 export interface CameraScannerModalProps {

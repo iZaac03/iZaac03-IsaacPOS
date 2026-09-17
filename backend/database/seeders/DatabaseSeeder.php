@@ -484,51 +484,10 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 7. Sample Purchase Order with URC (Sent status)
-        $po1 = PurchaseOrder::create([
-            'po_number' => 'PO-20260901-0001',
-            'store_id' => $store->store_id,
-            'supplier_id' => $supURC->supplier_id,
-            'user_id' => $manager->user_id,
-            'status' => 'sent',
-            'total_amount' => 5460.00,
-            'expected_delivery_date' => now()->addDays(2),
-            'notes' => 'Scheduled restock of C2 and Jack n Jill snack lines',
-        ]);
-
-        PurchaseOrderItem::create([
-            'po_id' => $po1->po_id,
-            'product_id' => $createdProducts['BEV-C2-003']->product_id,
-            'quantity_ordered' => 100.00,
-            'quantity_received' => 0.00,
-            'unit_cost' => 22.00,
-            'total_cost' => 2200.00,
-        ]);
-
-        PurchaseOrderItem::create([
-            'po_id' => $po1->po_id,
-            'product_id' => $createdProducts['SNK-PIA-001']->product_id,
-            'quantity_ordered' => 60.00,
-            'quantity_received' => 0.00,
-            'unit_cost' => 31.00,
-            'total_cost' => 1860.00,
-        ]);
-
-        PurchaseOrderItem::create([
-            'po_id' => $po1->po_id,
-            'product_id' => $createdProducts['SNK-NOV-002']->product_id,
-            'quantity_ordered' => 45.00,
-            'quantity_received' => 0.00,
-            'unit_cost' => 32.00,
-            'total_cost' => 1400.00,
-        ]);
-
-        // 8. Sample Completed POS Orders demonstrating Philippine Retail Math
-        // Order 1: Regular Cash Sale
-        // Item: 2x Kopiko 78C (₱68.00) + 1x Purefoods Corned Beef (₱105.00) = ₱173.00
-        // Vatable = 173 / 1.12 = 154.46, VAT = 18.54
+        // 7. Completed POS Orders (Retail demo data)
+        $today = date('Ymd');
         $order1 = Order::create([
-            'order_number' => 'ORD-20260903-0001',
+            'order_number' => "ORD-{$today}-0001",
             'store_id' => $store->store_id,
             'user_id' => $cashier->user_id,
             'customer_id' => $custRegular->customer_id,
@@ -586,10 +545,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Order 2: Split Payment (GCash + Cash)
-        // Item: 2x Colgate Total Toothpaste (₱290.00) + 1x Downy (₱185.00) = ₱475.00
-        // Split: ₱300.00 GCash + ₱175.00 Cash
         $order2 = Order::create([
-            'order_number' => 'ORD-20260903-0002',
+            'order_number' => "ORD-{$today}-0002",
             'store_id' => $store->store_id,
             'user_id' => $cashier->user_id,
             'customer_id' => null,
@@ -659,13 +616,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Order 3: Philippine Senior Citizen Discount (RA 9994 compliance)
-        // Subtotal gross: 1x Safeguard (₱62) + 2x Century Tuna (₱104) = ₱166.00
-        // Net of VAT (Vatable / 1.12) = 166.00 / 1.12 = 148.21
-        // 20% Senior Citizen discount = 148.21 * 0.20 = 29.64
-        // Final Payable = 148.21 - 29.64 = 118.57
-        // VAT Exempt Sales = 118.57, VAT Amount = 0.00
         $order3 = Order::create([
-            'order_number' => 'ORD-20260903-0003',
+            'order_number' => "ORD-{$today}-0003",
             'store_id' => $store->store_id,
             'user_id' => $cashier->user_id,
             'customer_id' => $custSenior->customer_id,
@@ -675,7 +627,7 @@ class DatabaseSeeder extends Seeder
             'vat_exempt_sales' => 118.57,
             'discount_type' => 'senior_pwd',
             'discount_rate' => 20.00,
-            'discount_amount' => 47.43, // 166 - 118.57 (VAT exemption 17.79 + 20% discount 29.64)
+            'discount_amount' => 47.43,
             'total_amount' => 118.57,
             'amount_paid' => 120.00,
             'change_amount' => 1.43,
@@ -695,19 +647,6 @@ class DatabaseSeeder extends Seeder
             'tax_amount' => 0.00,
             'subtotal' => 62.00,
             'total' => 44.29,
-        ]);
-
-        OrderItem::create([
-            'order_id' => $order3->order_id,
-            'product_id' => $createdProducts['GRO-CEN-006']->product_id,
-            'product_name' => $createdProducts['GRO-CEN-006']->name,
-            'quantity' => 2.00,
-            'unit_cost' => 40.00,
-            'unit_price' => 52.00,
-            'discount_amount' => 29.72,
-            'tax_amount' => 0.00,
-            'subtotal' => 104.00,
-            'total' => 74.28,
         ]);
 
         Payment::create([

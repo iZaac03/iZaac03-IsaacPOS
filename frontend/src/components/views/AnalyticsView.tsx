@@ -78,7 +78,7 @@ export const AnalyticsView: React.FC = () => {
       </div>
 
       {/* Financial KPI Summary Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <div className="p-3.5 bg-white rounded-md border border-slate-300">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
             Sales Today
@@ -88,6 +88,18 @@ export const AnalyticsView: React.FC = () => {
           </div>
           <div className="text-[11px] text-slate-500 mt-1 font-mono">
             {kpis.orders_today} orders
+          </div>
+        </div>
+
+        <div className="p-3.5 bg-blue-50/60 rounded-md border border-blue-200">
+          <span className="text-[11px] font-bold text-[#007dfe] uppercase tracking-wider block">
+            GCash Fees Today
+          </span>
+          <div className="text-xl font-bold text-[#007dfe] font-mono tabular-nums mt-1">
+            {formatPHP(kpis.gcash_fees_today || 0)}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1 font-mono">
+            {kpis.gcash_txns_today || 0} GCash txns
           </div>
         </div>
 
@@ -143,6 +155,72 @@ export const AnalyticsView: React.FC = () => {
           <div className="text-[11px] text-slate-500 mt-1">Approved returns</div>
         </div>
       </div>
+
+      {/* GCash Financial Services Performance Panel */}
+      {data.gcash_summary && (
+        <div className="p-4 bg-white rounded-md border border-blue-200 shadow-xs">
+          <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded bg-[#007dfe] text-white font-bold text-xs flex items-center justify-center">
+                G
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">
+                  GCash Financial Services Performance
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Daily & monthly cash in / out volume, fee profit, and service transactions
+                </p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold text-[#007dfe] bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+              Financial Station
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Cash In (Today)</span>
+              <div className="text-base font-bold font-mono text-emerald-700 mt-0.5">
+                {formatPHP(data.gcash_summary.today.cash_in_volume || 0)}
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono">
+                Month: {formatPHP(data.gcash_summary.month.cash_in_volume || 0)}
+              </span>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Cash Out (Today)</span>
+              <div className="text-base font-bold font-mono text-sky-700 mt-0.5">
+                {formatPHP(data.gcash_summary.today.cash_out_volume || 0)}
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono">
+                Month: {formatPHP(data.gcash_summary.month.cash_out_volume || 0)}
+              </span>
+            </div>
+
+            <div className="p-3 bg-blue-50/60 rounded-lg border border-blue-200">
+              <span className="text-[10px] font-bold text-[#007dfe] uppercase">Service Fees Profit</span>
+              <div className="text-base font-bold font-mono text-[#007dfe] mt-0.5">
+                +{formatPHP(data.gcash_summary.today.fees_earned || 0)}
+              </div>
+              <span className="text-[10px] text-blue-600 font-mono">
+                Month: +{formatPHP(data.gcash_summary.month.fees_earned || 0)}
+              </span>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Total GCash Txns</span>
+              <div className="text-base font-bold font-mono text-slate-900 mt-0.5">
+                {data.gcash_summary.today.txns_count || 0}
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono">
+                Month: {data.gcash_summary.month.txns_count || 0} completed
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -293,16 +371,17 @@ export const AnalyticsView: React.FC = () => {
               Cashier Shift Audit (Today)
             </h3>
             <p className="text-xs text-slate-500">
-              Individual cashier sales, discounts granted, and refunds
+              Individual cashier sales, GCash service count & fees collected
             </p>
           </div>
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 uppercase font-semibold text-[10px]">
                 <th className="p-3">Cashier</th>
-                <th className="p-3 text-right">Txns</th>
-                <th className="p-3 text-right">Gross Sales</th>
-                <th className="p-3 text-right">Discounts</th>
+                <th className="p-3 text-right">Orders</th>
+                <th className="p-3 text-right">Sales</th>
+                <th className="p-3 text-right">GCash Txns</th>
+                <th className="p-3 text-right">GCash Fees</th>
                 <th className="p-3 text-right">Refunds</th>
               </tr>
             </thead>
@@ -319,8 +398,11 @@ export const AnalyticsView: React.FC = () => {
                   <td className="p-3 text-right font-mono font-bold text-slate-900 tabular-nums">
                     {formatPHP(ca.total_sales)}
                   </td>
-                  <td className="p-3 text-right font-mono text-amber-700 font-semibold tabular-nums">
-                    {formatPHP(ca.total_discounts)}
+                  <td className="p-3 text-right font-mono text-blue-700 font-semibold tabular-nums">
+                    {ca.gcash_count || 0}
+                  </td>
+                  <td className="p-3 text-right font-mono text-emerald-700 font-bold tabular-nums">
+                    +{formatPHP(ca.gcash_fees || 0)}
                   </td>
                   <td className="p-3 text-right font-mono text-rose-700 font-semibold tabular-nums">
                     {ca.refunds_count > 0 ? formatPHP(ca.refunds_amount) : '₱0.00'}

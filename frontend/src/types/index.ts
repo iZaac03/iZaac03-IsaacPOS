@@ -232,3 +232,44 @@ export interface StockRequest {
   purchase_order?: PurchaseOrder;
 }
 
+export type GcashTransactionType = 'cash_in' | 'cash_out';
+
+export interface GcashTransaction {
+  gcash_transaction_id: number;
+  store_id: number;
+  user_id: number;
+  transaction_type: GcashTransactionType;
+  customer_name?: string | null;
+  customer_phone: string;
+  amount: number | string;
+  fee: number | string;
+  total_amount: number | string;
+  reference_number?: string | null;
+  status: 'completed' | 'cancelled';
+  notes?: string | null;
+  created_at: string;
+  updated_at?: string;
+  user?: {
+    user_id: number;
+    name?: string;
+    email?: string;
+    role?: string;
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+  };
+}
+
+export interface GcashRateTier {
+  min: number;
+  max: number;
+  fee: number;
+}
+
+export interface GcashSummary {
+  total_cash_in_volume: number;
+  total_cash_out_volume: number;
+  total_fees_earned: number;
+  total_count: number;
+}
+
